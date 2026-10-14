@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spectral Ghost in Representation Learning — from Component Analysis to Self-Supervised Learning</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-muted:#fafafa;
+  --fg:#0f172a;
+  --fg-muted:#475569;
+  --fg-soft:#94a3b8;
+  --accent-a:#7c3aed;   /* violet */
+  --accent-b:#3b82f6;   /* blue  */
+  --accent-c:#06b6d4;   /* cyan  */
+  --rule:#e2e8f0;
+  --hi-bg:#faf5ff;
+  --hi-border:#ddd6fe;
+  --code:#f1f5f9;
+}
+
+.reveal{
+  font-family:'Source Serif 4','Charter','Iowan Old Style',Georgia,serif;
+  font-weight:400;
+  color:var(--fg);
+  background:var(--bg);
+  font-size:26px;
+  line-height:1.45;
+}
+.reveal .slides{ text-align:left; }
+.reveal .slides > section, .reveal .slides > section > section{ padding:0 !important; }
+.reveal section{ height:100%; }
+
+/* Headings */
+.reveal h1,.reveal h2,.reveal h3,.reveal h4{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  color:var(--fg);
+  font-weight:600;
+  letter-spacing:-0.015em;
+  margin:0 0 0.5em;
+  text-transform:none;
+}
+.reveal h1{ font-size:2.2em; line-height:1.15; }
+.reveal h2{ font-size:1.25em; line-height:1.2; margin-bottom:0.6em; }
+.reveal h3{ font-size:1.02em; color:var(--fg-muted); font-weight:500; }
+
+/* Layout primitives */
+.slide-pad{ padding:48px 72px 64px; height:100%; box-sizing:border-box; display:flex; flex-direction:column; }
+.eyebrow{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.58em; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--accent-a); font-weight:600; margin-bottom:10px;
+}
+.slide-title{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:1.5em; font-weight:600; color:var(--fg);
+  margin:0 0 18px; letter-spacing:-0.015em;
+}
+.slide-subtitle{ color:var(--fg-muted); font-size:0.9em; margin:-8px 0 22px; }
+.rule{ height:3px; width:64px; background:linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)); border-radius:3px; margin:0 0 22px; }
+
+/* Body text */
+.reveal p{ margin:0.4em 0; }
+.reveal ul, .reveal ol{ margin:0.2em 0 0.4em 1.1em; }
+.reveal li{ margin:0.28em 0; }
+.reveal li::marker{ color:var(--accent-a); }
+.reveal strong{ color:var(--fg); font-weight:600; }
+.reveal em{ color:var(--fg-muted); font-style:italic; }
+.small{ font-size:0.78em; color:var(--fg-muted); }
+.tiny{ font-size:0.65em; color:var(--fg-soft); }
+.muted{ color:var(--fg-muted); }
+
+/* Math */
+.reveal .katex{ font-size:1.0em; }
+.eq{
+  margin:14px auto;
+  padding:18px 22px;
+  background:var(--hi-bg);
+  border:1px solid var(--hi-border);
+  border-radius:8px;
+  text-align:center;
+}
+.eq.tight{ padding:10px 14px; margin:8px auto; }
+.eq-lbl{ font-family:'Inter',sans-serif; font-size:0.6em; color:var(--fg-muted); letter-spacing:0.04em; margin-top:6px; }
+.boxed{
+  display:inline-block;
+  padding:10px 18px;
+  border:2px solid transparent;
+  background:
+    linear-gradient(#fff,#fff) padding-box,
+    linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)) border-box;
+  border-radius:8px;
+}
+
+/* Title slide */
+.title-slide{
+  height:100%;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:64px 96px;
+  background:
+    radial-gradient(1200px 600px at -10% -20%, rgba(124,58,237,0.06), transparent 50%),
+    radial-gradient(900px 500px at 110% 120%, rgba(6,182,212,0.06), transparent 55%),
+    #ffffff;
+}
+.title-slide .title{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:1.9em; line-height:1.15; font-weight:700; color:var(--fg);
+  letter-spacing:-0.02em; margin:0 0 12px;
+}
+.title-slide .subtitle{
+  font-family:'Source Serif 4',serif; font-style:italic;
+  font-size:1.12em; color:var(--fg-muted); margin:0 0 36px;
+}
+.title-slide .authors{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.78em; color:var(--fg);
+  margin:0 0 8px; font-weight:500;
+}
+.title-slide .affils{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.6em; color:var(--fg-muted);
+}
+.title-slide .spectrum{
+  height:8px; width:280px; border-radius:8px;
+  background:linear-gradient(90deg,#7c3aed 0%,#4f46e5 25%,#3b82f6 50%,#06b6d4 75%,#10b981 100%);
+  margin:40px 0 28px;
+  box-shadow:0 2px 12px rgba(124,58,237,0.18);
+}
+.title-slide .meta{
+  margin-top:auto; font-family:'Inter',sans-serif; font-size:0.58em; color:var(--fg-soft);
+}
+
+/* Section divider */
+.section-divider{
+  height:100%;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:72px 110px;
+  background:
+    linear-gradient(135deg, rgba(124,58,237,0.05), rgba(6,182,212,0.04));
+}
+.section-divider .sec-num{
+  font-family:'Inter',sans-serif; font-weight:700;
+  font-size:6em; line-height:1;
+  background:linear-gradient(135deg,var(--accent-a),var(--accent-b),var(--accent-c));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  margin:0 0 8px;
+}
+.section-divider .sec-title{
+  font-family:'Inter',sans-serif; font-weight:600;
+  font-size:1.8em; color:var(--fg); letter-spacing:-0.02em; margin:0;
+}
+.section-divider .sec-blurb{
+  margin-top:18px; font-size:0.95em; color:var(--fg-muted); max-width:700px;
+}
+
+/* Callout */
+.callout{
+  border-left:3px solid var(--accent-a);
+  background:var(--hi-bg);
+  padding:10px 16px; margin:14px 0;
+  font-size:0.95em;
+}
+.callout .k{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:0.68em;
+  color:var(--accent-a); text-transform:uppercase; letter-spacing:0.08em;
+  margin-right:8px;
+}
+
+/* Two columns */
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+.three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+.card{ padding:14px 18px; background:var(--bg-muted); border:1px solid var(--rule); border-radius:8px; }
+.card h4{ font-family:'Inter',sans-serif; font-size:0.85em; margin:0 0 6px; color:var(--fg); }
+.card .small{ font-size:0.76em; }
+
+/* Taxonomy table */
+.tax{
+  width:100%; border-collapse:collapse; font-family:'Inter',sans-serif; font-size:0.68em;
+}
+.tax th, .tax td{ border:1px solid var(--rule); padding:10px 12px; text-align:left; vertical-align:top; }
+.tax th{ background:var(--bg-muted); font-weight:600; color:var(--fg); }
+.tax td code{ color:var(--accent-a); font-family:ui-monospace,'SF Mono',Menlo,monospace; }
+
+/* Footer */
+.footer{
+  position:absolute; left:48px; right:48px; bottom:18px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:'Inter',sans-serif; font-size:0.55em; color:var(--fg-soft);
+  pointer-events:none;
+}
+.footer .lhs{ letter-spacing:0.06em; }
+.footer .rhs{ letter-spacing:0.06em; }
+
+.reveal .progress{ color:var(--accent-a); }
+.reveal .controls{ color:var(--accent-a); }
+.reveal .slide-number{ background:transparent; color:var(--fg-soft); font-family:'Inter',sans-serif; }
+
+/* Helpers */
+.spacer-sm{ height:10px; } .spacer-md{ height:20px; } .spacer-lg{ height:32px; }
+.chip{
+  display:inline-block; padding:3px 10px; border-radius:999px;
+  font-family:'Inter',sans-serif; font-size:0.58em; letter-spacing:0.04em;
+  background:#eef2ff; color:#4338ca; margin:2px 4px 2px 0;
+}
+.chip.c2{ background:#ecfeff; color:#0e7490; }
+.chip.c3{ background:#fef3c7; color:#a16207; }
+.chip.c4{ background:#fce7f3; color:#be185d; }
+.chip.c5{ background:#ecfccb; color:#4d7c0f; }
+
+hr.soft{ border:none; border-top:1px solid var(--rule); margin:16px 0; }
+
+.legend{ font-family:'Inter',sans-serif; font-size:0.6em; color:var(--fg-muted); }
+.legend .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+
+.arrow-row{ display:flex; align-items:center; gap:14px; font-family:'Inter',sans-serif; font-size:0.8em; }
+.arrow{ color:var(--accent-a); font-weight:600; }
+
+kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em; color:var(--accent-a); }
+</style>
+</head>
+
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- 1. TITLE -->
+<!-- ============================================================ -->
+<section>
+  <div class="title-slide" style="position:relative">
+    <div class="spectrum"></div>
+    <div class="title">Spectral Ghost in (Self-supervised) Representation Learning</div>
+    <div class="authors" style="display:flex; align-items:center; gap:18px; font-size:1.2em">
+      <span>Bo Dai</span>
+      <img src="GTExtended_RGB.png" alt="Georgia Tech" style="height:2.4em; width:auto; opacity:0.95">
+    </div>
+    <!-- <div class="meta">arXiv:2601.20154 &nbsp;·&nbsp; research talk</div> -->
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. Motivation: SSL is everywhere -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Motivation</div>
+    <div class="rule"></div>
+    <div class="slide-title">Self-supervised learning is everywhere</div>
+    <p>A single recipe — pretext task on unlabeled data, then transfer — now powers almost every modality:</p>
+    <div class="two-col" style="margin-top:14px">
+      <div class="card">
+        <h4>Text</h4>
+        <div class="small">Next-token prediction (GPT), masked LM (BERT), contrastive text embeddings (word2vec).</div>
+      </div>
+      <div class="card">
+        <h4>Vision</h4>
+        <div class="small">SimCLR, MoCo, BYOL, SimSiam, Barlow Twins, VICReg, DINO, MAE&nbsp;…</div>
+      </div>
+      <div class="card">
+        <h4>Multi-modal</h4>
+        <div class="small">CLIP, SigLIP, SogLIP / AmorLIP / NeuCLIP, audio-visual, video-text.</div>
+      </div>
+      <div class="card">
+        <h4>Decision &amp; science</h4>
+        <div class="small">Linear-MDP rep for RL &amp; control, causal IV / proxy, animal behavior.</div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px">The empirical payoff is huge — but the <strong>theory</strong> is scattered across paradigms.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Motivation · 2</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. The SSL zoo -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Motivation</div>
+    <div class="rule"></div>
+    <div class="slide-title">A dizzying variety of SSL objectives</div>
+    <div class="two-col">
+      <div>
+        <h3>How do you characterize a method?</h3>
+        <ul>
+          <li><strong>Contrastive</strong> vs. <strong>non-contrastive</strong></li>
+          <li><strong>Stationary</strong> vs. <strong>non-stationary</strong> negatives</li>
+          <li><strong>Siamese</strong> vs. <strong>asymmetric projector</strong> vs. <strong>momentum</strong></li>
+          <li><strong>Instance</strong> vs. <strong>clustering</strong> vs. <strong>masked</strong> vs. <strong>denoising</strong></li>
+        </ul>
+        <p class="muted" style="margin-top:10px">Every axis spawns a new family with its own loss, its own trick, its own taxonomy…</p>
+      </div>
+      <div>
+        <h3>…and every family claims its own principle</h3>
+        <div class="spacer-sm"></div>
+        <div>
+          <span class="chip">SimCLR</span>
+          <span class="chip">MoCo</span>
+          <span class="chip">CPC</span>
+          <span class="chip">Word2Vec</span>
+          <span class="chip c2">BYOL</span>
+          <span class="chip c2">SimSiam</span>
+          <span class="chip c2">MINC</span>
+          <span class="chip c3">Barlow&nbsp;Twins</span>
+          <span class="chip c3">VICReg</span>
+          <span class="chip c4">DeepCluster</span>
+          <span class="chip c4">SwAV</span>
+          <span class="chip c4">DINO</span>
+          <span class="chip c4">SeLa</span>
+          <span class="chip c5">CLIP</span>
+          <span class="chip c5">SigLIP</span>
+          <span class="chip c5">Diffusion&nbsp;SR</span>
+        </div>
+        <div class="spacer-md"></div>
+        <div class="legend">
+          <span class="dot" style="background:#6366f1"></span>contrastive NCE
+          &nbsp;&nbsp;<span class="dot" style="background:#06b6d4"></span>power-iter / momentum
+          <br><span class="dot" style="background:#a16207"></span>covariance regularization
+          &nbsp;<span class="dot" style="background:#be185d"></span>latent-variable / cluster
+          <br><span class="dot" style="background:#4d7c0f"></span>multi-modal
+        </div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:18px"><span class="k">Observation</span>They share the <em>self-supervised spirit</em> — but no shared framework. Unfair comparisons, ad-hoc design, unnecessary barriers to entry.</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Motivation · 3</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. Two foundational questions -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Motivation</div>
+    <div class="rule"></div>
+    <div class="slide-title">Two questions the field has never answered cleanly</div>
+    <div class="two-col" style="margin-top:10px">
+      <div class="card" style="border-left:4px solid var(--accent-a)">
+        <h4>Q1 &nbsp; What is a <em>sufficient</em> representation?</h4>
+        <div class="small fragment fade-in" data-fragment-index="1">A representation is <strong>sufficient &amp; effective</strong> if downstream tasks can be solved by <em>light-weight</em> functions <em>on top of it</em>, not on the raw input.</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-c)">
+        <h4>Q2 &nbsp; How to learn it <em>efficiently</em>?</h4>
+        <div class="small fragment fade-in" data-fragment-index="1">Objective should admit an <strong>unbiased stochastic estimator</strong>, scale to massive unlabeled data, need no labels.</div>
+      </div>
+    </div>
+    <div class="spacer-md"></div>
+    <!-- <p class="fragment fade-in" data-fragment-index="2">Current practice answers neither — design choices are chosen by ablation, not principle.</p> -->
+    <div class="spacer-sm"></div>
+    <div class="boxed fragment fade-in" data-fragment-index="2">
+      <strong>Claim of this talk:</strong> &nbsp; one <em>spectral view</em> of the transition operator answers both questions and unifies the zoo.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Motivation · 4</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. Preview of the story -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Roadmap</div>
+    <div class="rule"></div>
+    <div class="slide-title">One-slide preview of the story</div>
+    <ol>
+      <li><strong>Sufficiency</strong> — spectral factorization of the PMI \(\frac{\mathbb{P}(x',x)}{\mathbb{P}(x')\mathbb{P}(x)}\) gives a <em>universal</em> sufficient representation.</li>
+      <li><strong>Unified framework</strong> — every SSL method learns it; they differ only in <strong>parametrization</strong> × <strong>optimization</strong>.</li>
+      <li><strong>New algorithms</strong> — better stochastic estimators, by design.</li>
+      <li><strong>Applications</strong> — regression, causal inference, RL.</li>
+    </ol>
+    <div class="spacer-md"></div>
+    <div class="callout"><span class="k">Take-away</span>
+      <em>One target — the spectral rep of pairwise mutual information. Only the recipe changes.</em>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Roadmap · 5</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. SECTION DIVIDER — Sufficiency -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Sufficiency of the Spectral Representation</div>
+    <div class="sec-blurb">What makes a representation enough for <em>any</em> downstream task — and can we extract it from unlabeled data alone?</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. Sufficiency setup -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Sufficiency</div>
+    <div class="rule"></div>
+    <div class="slide-title">Start from the prediction task: SVD of <span class="mono">P(y|x)</span></div>
+    <div style="display:grid; grid-template-columns:1.3fr 0.95fr; gap:30px; align-items:center">
+      <div>
+        <p>For any downstream target \(y\), SVD-factorize the conditional:</p>
+        <div class="eq tight">\[ \mathbb{P}(y\mid x) \;=\; \bigl\langle \phi(x),\; \mu(y) \bigr\rangle \]</div>
+        <p>The optimal least-squares predictor is then <em>linear</em> in \(\phi(x)\):</p>
+        <div class="eq tight">\[ \mathbb{E}[y\mid x] \;=\; \bigl\langle \phi(x),\; \underbrace{\textstyle\int y\,\mu(y)\,dy}_{w} \bigr\rangle \]</div>
+        <div class="callout"><span class="k">But…</span>
+          \(\phi(x)\) is <strong>task-dependent</strong> — a different task induces a different SVD subspace. We need <em>one</em> representation sufficient for <em>any</em> task.
+        </div>
+      </div>
+      <div style="text-align:center">
+        <svg viewBox="0 0 300 250" width="100%" style="max-width:330px">
+          <defs>
+            <marker id="ahg" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#475569"/></marker>
+            <marker id="ahc" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#06b6d4"/></marker>
+          </defs>
+          <polygon points="110,175 206,193 158,157 62,139" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.2"/>
+          <line x1="110" y1="175" x2="272" y2="205" stroke="#475569" stroke-width="1.6" marker-end="url(#ahg)"/>
+          <line x1="110" y1="175" x2="30"  y2="118" stroke="#475569" stroke-width="1.6" marker-end="url(#ahg)"/>
+          <line x1="110" y1="175" x2="110" y2="24"  stroke="#475569" stroke-width="1.6" marker-end="url(#ahg)"/>
+          <line x1="110" y1="175" x2="182" y2="60" stroke="#06b6d4" stroke-width="2.6" marker-end="url(#ahc)"/>
+          <text x="278" y="212" font-family="Inter,sans-serif" font-size="13" font-style="italic" fill="#475569">&#966;&#8321;</text>
+          <text x="12"  y="114" font-family="Inter,sans-serif" font-size="13" font-style="italic" fill="#475569">&#966;&#8322;</text>
+          <text x="96"  y="20"  font-family="Inter,sans-serif" font-size="13" font-style="italic" fill="#475569">&#966;&#8323;</text>
+          <text x="120" y="225" font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#7c3aed">task A</text>
+          <text x="188" y="56"  font-family="Inter,sans-serif" font-size="12" font-weight="600" fill="#0e7490">task B</text>
+        </svg>
+        <div class="legend" style="margin-top:8px; color:var(--fg-muted)">each task &rarr; a different subspace</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Sufficiency · 7</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. Sufficiency construction -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Sufficiency</div>
+    <div class="rule"></div>
+    <div class="slide-title">Route the answer through the <em>transition</em> operator <span class="mono">P(x'|x)</span></div>
+    <p>Let \(\psi(x)\) span the union of all SVD subspaces of \(\mathbb{P}(y\mid x)\) over every task (the <em>core set</em>, with \(\mathbb{P}(z\mid x) = \langle \nu(z),\, \psi(x)\rangle\)). Then for any neighbor \(x'\):</p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \mathbb{P}(x'\mid x) \;=\; \int \mathbb{P}(x'\mid z)\,\mathbb{P}(z\mid x)\,dz \;=\; \mathbb{P}(x')\,\Bigl\langle \psi(x'),\; \underbrace{\Bigl(\textstyle\int\!\tfrac{\nu(z)\nu(z)^\top}{\mathbb{P}(z)}\,dz\Bigr)}_{A}\,\psi(x) \Bigr\rangle \]</div>
+    <p class="fragment fade-in" data-fragment-index="2">Since \(A = B^\top B\) is full-rank, define \(\varphi(x) := B\,\psi(x)\). Then</p>
+    <div class="eq fragment fade-in" data-fragment-index="2">\[ \boxed{\;\frac{\mathbb{P}(x,x')}{\mathbb{P}(x)\mathbb{P}(x')} \;=\; \bigl\langle \varphi(x'),\; \varphi(x) \bigr\rangle\;} \]<div class="eq-lbl">the spectral / pointwise-mutual-information factorization</div></div>
+    <p class="muted fragment fade-in" data-fragment-index="2">\(\varphi\) and \(\psi\) span the <em>same</em> space ⇒ \(\mathbb{E}[y|x] = \langle \varphi(x), w\rangle\) for <em>every</em> task.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Sufficiency · 8</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 9. Main sufficiency statement -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Sufficiency · Main Result</div>
+    <div class="rule"></div>
+    <div class="slide-title">Universal sufficient representation from unlabeled data</div>
+    <div class="boxed" style="margin:10px 0 22px; font-size:1.02em">
+      The spectral factor \(\varphi(x)\) of the <strong>PMI</strong> \(\dfrac{\mathbb{P}(x,x')}{\mathbb{P}(x)\mathbb{P}(x')}\) &nbsp; is
+      <br>(i) <strong>sufficient</strong> for linearly representing \(\mathbb{E}[y|x]\) for <em>any</em> \(y\), and
+      <br>(ii) extractable from <strong>unlabeled</strong> \((x,x')\) pairs only.
+    </div>
+    <div class="boxed fragment fade-in" data-fragment-index="1" style="margin:18px 0 0; font-size:1.12em; line-height:1.45; background:linear-gradient(#faf5ff,#faf5ff) padding-box, linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)) border-box">
+      The <strong>target</strong> of representation learning is the <strong>spectral decomposition of the PMI operator</strong>.
+      <span class="fragment fade-in" data-fragment-index="2" style="color:#dc2626">&nbsp;Everything else is parametrization&nbsp;+&nbsp;optimization.</span>
+    </div>
+    <!-- <hr class="soft"/> -->
+    <!-- <p class="small muted"><strong>Task-agnostic vs task-dependent.</strong> When the downstream task is pre-specified (e.g. retrieval in CLIP, next-token in LMs), we can decompose the task-specific \(\mathbb{P}(y|x)\) directly — cheaper but narrower.</p> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Sufficiency · 9</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10. SECTION DIVIDER — Unified Framework -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">2</div>
+    <div class="sec-title">A Unified Framework for SSL</div>
+    <div class="sec-blurb">Four parametrizations × a handful of optimization principles recover the entire SSL zoo.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 11. Taxonomy table -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Unified Framework</div>
+    <div class="rule"></div>
+    <div class="slide-title">The taxonomy: parametrization × optimization</div>
+    <table class="tax">
+      <thead>
+        <tr>
+          <th style="width:24%"></th>
+          <th>Square match<br><span class="muted" style="font-weight:400">(mean-square)</span></th>
+          <th>NCE / logistic<br><span class="muted" style="font-weight:400">(classification)</span></th>
+          <th>Power iteration<br><span class="muted" style="font-weight:400">(fixed-point)</span></th>
+          <th>Variational<br><span class="muted" style="font-weight:400">(ELBO / EM)</span></th>
+          <th style="color:var(--accent-b)">Density-ratio<br><span style="font-weight:400;color:var(--accent-b);opacity:0.8">(f-divergence)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Direct linear<br><span style="font-weight:400">\(\mathbb{P}(x'|x)=\mathbb{P}(x')\,\varphi(x')^\top\varphi(x)\)</span></th>
+          <td>SpecContrastive<br>Barlow Twins · VICReg</td>
+          <td>binary-NCE<br>rank-NCE</td>
+          <td>BYOL · MINC</td>
+          <td>—</td>
+          <td style="color:var(--accent-b)">KL · χ² new</td>
+        </tr>
+        <tr>
+          <th>Energy-based<br><span style="font-weight:400">\(\mathbb{P}(x'|x)=\mathbb{P}(x')\,\exp\!\big(v(x')^\top v(x)\big)\)</span></th>
+          <td>—</td>
+          <td><strong>SimCLR</strong> · Word2Vec</td>
+          <td><strong>MoCo</strong> · Diffusion SR</td>
+          <td>—</td>
+          <td style="color:var(--accent-b)">KL-ratio new</td>
+        </tr>
+        <tr>
+          <th>Latent-variable<br><span style="font-weight:400">\(\mathbb{P}(x'|x)=\int\mathbb{P}(x'|z)\,\mathbb{P}(z|x)\,dz\)</span></th>
+          <td>—</td>
+          <td>—</td>
+          <td><strong>DINO · SwAV</strong></td>
+          <td>Var-ELBO · DeepCluster · SeLa</td>
+          <td style="color:var(--accent-b)">Adversarial · CD-RBM</td>
+        </tr>
+        <tr>
+          <th>Nonlinear projector<br><span style="font-weight:400">\(\mathbb{P}(x'|x)=\mathbb{P}(x')\,k(v(x'),v(x))\)</span></th>
+          <td>—</td>
+          <td>nonlinear NCE</td>
+          <td><strong>SimSiam</strong></td>
+          <td>—</td>
+          <td style="color:var(--accent-b)">nonlinear ratio</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="boxed fragment fade-in" data-fragment-index="1" style="margin:16px auto 0; font-size:1.0em; line-height:1.4; background:linear-gradient(#faf5ff,#faf5ff) padding-box, linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)) border-box">
+      The <strong>target</strong> of representation learning is the <strong>spectral decomposition of the PMI operator</strong>.
+      <span class="fragment fade-in" data-fragment-index="2" style="color:#dc2626">&nbsp;Everything else is parametrization&nbsp;+&nbsp;optimization.</span>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Unified Framework · 11</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 12. Recipe -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Unified Framework</div>
+    <div class="rule"></div>
+    <div class="slide-title">The algorithmic recipe, in three steps</div>
+    <div class="three-col" style="margin-top:14px">
+      <div class="card fragment fade-in" data-fragment-index="1">
+        <h4>1. Parametrize the PMI</h4>
+        <div class="small">Choose a form for \(\tfrac{\mathbb{P}(x,x')}{\mathbb{P}(x)\mathbb{P}(x')}\): linear / EBM / latent-var / nonlinear kernel.</div>
+      </div>
+      <div class="card fragment fade-in" data-fragment-index="2">
+        <h4>2. Choose an objective</h4>
+        <div class="small">Square match, NCE, density-ratio (f-divergence), or variational power iteration.</div>
+      </div>
+      <div class="card fragment fade-in" data-fragment-index="3">
+        <h4>3. Optimize</h4>
+        <div class="small">Stochastic gradient when the objective admits unbiased sampling; beware biased gradients in covariance-regularized losses.</div>
+      </div>
+    </div>
+    <div class="spacer-md"></div>
+    <p class="fragment fade-in" data-fragment-index="4">This recipe will now walk through the four parametrizations in turn.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Unified Framework · 12</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 13. SECTION DIVIDER — Direct spectral -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">3</div>
+    <div class="sec-title">Direct Linear Spectral Representation</div>
+    <div class="sec-blurb">Square contrastive · Barlow Twins · VICReg · BYOL / MINC — all direct SVD of the PMI.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 14. T operator -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral</div>
+    <div class="rule"></div>
+    <div class="slide-title">The normalized transition operator <span class="mono">T(x,x′)</span></div>
+    <p>Recall the spectral parametrization of the PMI as an inner product of spectral factors:</p>
+    <div class="eq tight">\[ \frac{\mathbb{P}(x',x)}{\mathbb{P}(x)\mathbb{P}(x')} \;=\; \bigl\langle \varphi(x'),\varphi(x)\bigr\rangle \]</div>
+    <p>Rescale by the marginal densities to get a tractable target:</p>
+    <div class="eq tight">\[ T(x,x') \;:=\; \frac{\mathbb{P}(x',x)}{\sqrt{\mathbb{P}(x)\mathbb{P}(x')}} \;=\; \sqrt{\mathbb{P}(x)\mathbb{P}(x')}\,\bigl\langle \varphi(x'),\varphi(x)\bigr\rangle \]</div>
+    <p>Spectral learning = find \(\varphi\) such that \(\langle\varphi(x'),\varphi(x)\rangle\) matches \(T\) on observed pairs.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 14</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 15. Spectral Contrastive -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral Contrastive Loss <span class="muted" style="font-size:0.7em">(HaoChen et&nbsp;al., 2021)</span></div>
+    <p>Mean-square match of \(T\) against the rank-\(d\) reconstruction \(\sqrt{\mathbb{P}(x)\mathbb{P}(x')}\langle\varphi(x'),\varphi(x)\rangle\):</p>
+    <div class="eq tight">\[ \begin{aligned} \min_\varphi\, \ell(\varphi) \;&:=\; \int \bigl\| T(x,x') - \sqrt{\mathbb{P}(x)\mathbb{P}(x')}\,\bigl\langle \varphi(x'),\varphi(x)\bigr\rangle \bigr\|^2 \, dx\,dx' \\[2pt] &=\; \underbrace{\int T(x,x')^2\,dx\,dx'}_{\text{constant}} \;-\; 2\,\mathbb{E}_{\mathbb{P}(x,x')}\!\bigl[\varphi(x)^\top\varphi(x')\bigr] \;+\; \mathbb{E}_{\mathbb{P}(x)\mathbb{P}(x')}\!\bigl[(\varphi(x)^\top\varphi(x'))^2\bigr] \end{aligned} \]</div>
+    <ul>
+      <li>First term: <strong>alignment</strong> on positive pairs (from \(\mathbb{P}(x,x')\)).</li>
+      <li>Second term: <strong>uniformity</strong> on negative pairs (independent \(\mathbb{P}(x)\mathbb{P}(x')\)).</li>
+      <li>Both expectations admit <strong>unbiased</strong> minibatch estimators ⇒ <span style="color:#dc2626; font-weight:600">SGD-friendly</span>.</li>
+    </ul>
+    <!-- <p class="muted">Our benchmark objective for the rest of the talk. Barlow Twins, VICReg, BYOL will be shown to be <em>alternative parametrizations of the same target</em>.</p> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 15</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 16. Barlow Twins -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">Barlow Twins is spectral with orthonormalized embedding</div>
+    <p>Introduce a full-rank linear projection \(\xi(x) = Z^\top\varphi(x)\) with \(Z = U\Lambda^{-1}\) and \(A = \mathbb{E}[\varphi(x)\varphi(x)^\top] = U\Lambda U^\top\). The SVD condition becomes</p>
+    <div class="eq tight">\[ \begin{aligned} \mathbb{E}_{\mathbb{P}(x', x)}[\xi(x)\xi(x')^\top] &= \int T(x,x')\,\sqrt{\mathbb{P}(x)}\,\xi(x)\,\sqrt{\mathbb{P}(x')}\,\xi(x')^\top \, dx\,dx' \\[2pt] &\quad=\; \Bigl\langle \textstyle\int \mathbb{P}(x)\,\xi(x)\,\varphi(x)^\top dx,\;\; \int \varphi(x')\,\mathbb{P}(x')\,\xi(x')^\top dx' \Bigr\rangle \;=\; Z^\top A^\top A Z \;=\; \mathbf{I} \end{aligned} \]</div>
+    <p>Minimizing squared error from \(\mathbf{I}\) with a regularization coefficient \(\lambda\) recovers the <em>exact</em> Barlow-Twins objective:</p>
+    <div class="eq tight">\[ \min_{U,\varphi}\;\sum_{i=1}^d (1-C_{ii})^2 \;+\; \lambda \sum_{i\ne j} C_{ij}^2,\qquad C = \mathrm{Cov}\bigl[\xi(x),\xi(x')\bigr] \]</div>
+    <!-- <div class="callout"><span class="k">Insight</span>On-diagonal = alignment; off-diagonal = <em>orthonormalization</em> of the spectral basis.</div> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 16</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 17. VICReg -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">VICReg is spectral with a penalty-method objective</div>
+    <p>Linear projection \(Z=U\Lambda^{-1/2}\) — orthonormality (Eq. 15) &amp; variational SVD characteristic (Eq. 16):</p>
+    <div class="eq tight" style="font-size:0.9em">\[ \begin{aligned} &\mathbb{E}[\xi(x)\xi(x)^\top] = Z^\top\,\mathbb{E}[\varphi(x)\varphi(x)^\top]\,Z = \mathbf{I} \\[3pt] &\max_\xi \int T(x,x')\sqrt{\mathbb{P}(x)}\,\xi(x)^\top\sqrt{\mathbb{P}(x')}\,\xi(x')\,dx\,dx' = \mathbb{E}_{\mathbb{P}(x,x')}\!\bigl[\xi(x)^\top\xi(x')\bigr] \end{aligned} \]</div>
+    <p>Combine via the penalty method:</p>
+    <div class="eq tight">
+      \[ \min_\xi\; -\mathbb{E}_{\mathbb{P}(x,x')}\!\bigl[\xi(x)^\top\xi(x')\bigr] \;+\; \eta\underbrace{\Bigl(\textstyle\sum_{i\ne j}\mathrm{Cov}^2(\xi(x)) + \mathrm{Cov}^2(\xi(x'))\Bigr)}_{\text{covariance term}}\;+\; \lambda\underbrace{\sum_{i=1}^d \max\!\bigl(0,1-\sqrt{\mathrm{diag}\,\mathrm{Cov}[\xi(x)]}\bigr)}_{\text{variance term}} \]
+    </div>
+    <!-- <p class="small">Three terms — <strong>Invariance</strong> + <strong>Covariance</strong> + <strong>Variance</strong> — all from \(\mathbb{E}[\xi\xi^\top]=\mathbf{I}\) plus the variational property.</p> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 17</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 18. BYOL / MINC -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">BYOL &amp; MINC are <em>power iteration</em> for the PMI operator</div>
+    <p>Fixed-point condition of the spectral rep \(\xi = Z^\top\varphi\):</p>
+    <div class="eq tight">\[ \int T(x,x')\sqrt{\mathbb{P}(x')}\,\xi(x')\,dx' \;=\; \Lambda\sqrt{\mathbb{P}(x)}\,\xi(x) \]</div>
+    <p>Iterate three conceptual steps:</p>
+    <ol>
+      <li>\(\Lambda_{t+1} \leftarrow \mathbb{E}[\xi_t(x)\xi_t(x)^\top]\) &nbsp;— EMA of covariance.</li>
+      <li>match \(\xi_{t+1}(x) \approx \Lambda^{-1}\!\int T\,\xi_t(x')\,dx'\) &nbsp;— predictor head on the online branch.</li>
+      <li>orthogonalize &nbsp;— self-normalization or Gram-Schmidt.</li>
+    </ol>
+    <div class="callout"><span class="k">What the tricks really are</span>
+      <em>Target encoder + momentum</em> = previous-iterate \(\xi_t\). &nbsp;
+      <em>Predictor head</em> = \(\Lambda^{-1}\) in the power update. &nbsp;
+      No collapse because each step preserves the top-\(d\) eigenspace.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 18</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 19. Bias warning -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · Diagnosis</div>
+    <div class="rule"></div>
+    <div class="slide-title">Non-contrastive ≠ free lunch: the hidden bias</div>
+    <p>Folklore: <em>contrastive needs large batches because of negatives.</em>
+    Actual culprit: <strong>bias in the stochastic gradient</strong>.</p>
+    <div class="two-col" style="margin-top:14px">
+      <div class="card">
+        <h4>Compatible with SGD (unbiased)</h4>
+        <ul class="small">
+          <li>Spectral Contrastive</li>
+          <li>BYOL · MINC (square loss)</li>
+          <li>binary / rank NCE</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:#fca5a5; background:#fef2f2">
+        <h4 style="color:#b91c1c">Biased — needs big batches</h4>
+        <ul class="small">
+          <li>Barlow Twins: \((1-C_{ii})^2\) is nonlinear in expectation</li>
+          <li>VICReg: covariance-squared penalty</li>
+          <!-- <li>rank-NCE: log-sum-exp over batch</li> -->
+        </ul>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:14px">Implication: the contrastive-vs-non-contrastive debate is miscast — the real axis is <em>bias</em> vs <em>unbiased</em> gradient.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 19</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 20. New algos 1: NCE -->
+<!-- ============================================================ -->
+<!-- COMMENTED OUT
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · New Algorithms</div>
+    <div class="rule"></div>
+    <div class="slide-title">NCE for spectral representation</div>
+    <p>Noise-contrastive estimation fits the unnormalized density ratio \(\tfrac{\mathbb{P}(x'|x)}{\mathbb{P}(x')}=\langle\varphi(x'),\varphi(x)\rangle\). Plug in the spectral parametrization:</p>
+    <div class="eq tight">\[ \text{binary-NCE:}\quad \max_\varphi \;\mathbb{E}_{\mathbb{P}(x,x')}\!\left[\log\tfrac{\langle\varphi(x'),\varphi(x)\rangle}{1+\langle\varphi(x'),\varphi(x)\rangle}\right] - \mathbb{E}_{\mathbb{P}(x)\mathbb{P}(x')}\!\left[\log\bigl(1+\langle\varphi(x'),\varphi(x)\rangle\bigr)\right] \]</div>
+    <div class="eq tight">\[ \text{rank-NCE:}\quad \max_\varphi \;\mathbb{E}_{\mathbb{P}(x,x')}\bigl[\log\varphi(x)^\top\varphi(x')\bigr] - \mathbb{E}_{\mathbb{P}(x)}\!\left[\log\!\sum_{x'\sim\mathbb{P}(x')}\!\varphi(x)^\top\varphi(x')\right] \]</div>
+    <div class="callout"><span class="k">Remark</span>
+      This is distinct from SimCLR — no \(\exp(\cdot)\) wrapping the inner product. (SimCLR lives in the <em>energy-based</em> parametrization instead.)
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 19</span></div>
+</section>
+-->
+
+<!-- ============================================================ -->
+<!-- 21. New algos 2: density ratio -->
+<!-- ============================================================ -->
+<!-- COMMENTED OUT
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Direct Spectral · New Algorithms</div>
+    <div class="rule"></div>
+    <div class="slide-title">Density-ratio estimation via <em>any</em> f-divergence</div>
+    <p>Fenchel dual of any convex \(f\) gives</p>
+    <div class="eq tight">\[ D_f\bigl(\mathbb{P}(x',x)\,\|\,\mathbb{P}(x)\mathbb{P}(x')\bigr) \;=\; \sup_{g}\;\mathbb{E}_{\mathbb{P}(x',x)}[g(x,x')] - \mathbb{E}_{\mathbb{P}(x)\mathbb{P}(x')}[f^*(g(x,x'))] \]</div>
+    <p>Parametrize \(g(x,x') = f'(\langle\varphi(x),\varphi(x')\rangle)\). Two notable corners:</p>
+    <div class="two-col">
+      <div class="card"><h4>KL &nbsp;<span class="muted">f(u)=u log u</span></h4>
+        <div class="small">\(\max \mathbb{E}[\log\langle\varphi,\varphi'\rangle] - \mathbb{E}[\langle\varphi,\varphi'\rangle]\) — mutual info max.</div></div>
+      <div class="card"><h4>χ² &nbsp;<span class="muted">f(u)=(u−1)²</span></h4>
+        <div class="small">Recovers the spectral contrastive loss <em>exactly</em>.</div></div>
+    </div>
+    <p class="muted small" style="margin-top:12px">Connects the classical "mutual-information maximization" view (Hjelm '18, Tschannen '19) to spectral decomposition <em>formally</em> — previously known only as a bound.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Direct Spectral · 20</span></div>
+</section>
+-->
+
+<!-- ============================================================ -->
+<!-- 22. SECTION DIVIDER — Energy-based -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">4</div>
+    <div class="sec-title">Energy-Based Spectral Representation</div>
+    <div class="sec-blurb">SimCLR · Word2Vec · MoCo · Diffusion SR — same SVD, compact implicit parametrization.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 23. EBM parametrization -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Energy-Based</div>
+    <div class="rule"></div>
+    <div class="slide-title">Exponential parametrization of <span class="mono">P(x'|x)</span></div>
+    <p>Replace the linear factorization with an energy-based one:</p>
+    <div class="eq">\[ \mathbb{P}(x'\mid x) \;=\; \mathbb{P}(x')\,\exp\!\bigl(v(x')^\top v(x)\bigr) \]</div>
+    <p>\(v(x)\in\mathbb{R}^d\) is low-dimensional, yet the <em>spectral</em> factor \(\varphi\) implied by this parametrization will be <strong>infinite-dimensional</strong>.</p>
+    <!-- <div class="callout"><span class="k">Why bother?</span>
+      A small neural \(v(x)\) encodes the full nonlinear spectrum through Bochner's theorem — trading dimension for expressiveness.
+    </div> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Energy-Based · 21</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 24. Random Fourier -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Energy-Based · Kernel View</div>
+    <div class="rule"></div>
+    <div class="slide-title">Random Fourier features → infinite-dim spectral rep</div>
+    <p>Expand the quadratic exponent \(\exp(v(x')^\top v(x)) = e^{\|v(x')\|^2/2}\,e^{-\|v(x')-v(x)\|^2/2}\,e^{\|v(x)\|^2/2}\). The middle factor is a <strong>Gaussian kernel</strong>; Bochner gives</p>
+    <div class="eq">\[ e^{-\|v(x')-v(x)\|^2/2} \;=\; \bigl\langle \varphi_\omega(x'),\,\varphi_\omega(x)\bigr\rangle_{\mathcal{N}(\omega)}, \qquad \varphi_\omega(x) := e^{-i\omega^\top v(x)}\,e^{\|v(x)\|^2/2} \]</div>
+    <div class="callout"><span class="k">Bridge</span>
+      A finite-\(d\) energy network \(v\) <em>implicitly</em> defines an infinite-dimensional linear spectral rep \(\varphi_\omega\) — the "spectral ghost".
+    </div>
+    <p class="muted small">Generalizes to any positive-definite kernel on \(v(x),v(x')\) — used later for nonlinear projector view.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Energy-Based · 22</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 25. SimCLR -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Energy-Based · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">SimCLR = rank-NCE on the energy-based spectral rep</div>
+    <p>Plug EBM into the \(k\)-way posterior \(p_\theta(k|\{x'_i\},x) = \dfrac{e^{v(x'_k)^\top v(x)}}{\sum_j e^{v(x'_j)^\top v(x)}}\). Minimizing the multi-class log-loss:</p>
+    <div class="eq">\[ \min_v \; -\mathbb{E}_{\mathbb{P}(x,x')}\!\bigl[v(x')^\top v(x)\bigr] \;+\; \mathbb{E}_{\mathbb{P}(x)}\!\left[\log\!\sum_{i} e^{v(x'_i)^\top v(x)}\right] \]</div>
+    <p>Restricting \(\|v(x)\|_2=1\) (L2-normalize) gives the exact SimCLR loss.</p>
+    <!-- <div class="callout"><span class="k">What this reveals</span>
+      SimCLR's projection head + L2-normalization + InfoNCE loss = rank-NCE density-ratio estimator for the <em>energy-based spectral parametrization</em>. &nbsp;
+      For downstream regressors, the framework predicts \(v(x)\) <em>unnormalized</em> is the right interface.
+    </div> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Energy-Based · 23</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 26. Word2Vec & MoCo -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Energy-Based · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">Word2Vec &amp; MoCo — same spectral target, different optimizer</div>
+    <div class="two-col">
+      <div>
+        <h3>Word2Vec = binary NCE on EBM</h3>
+        <div class="eq tight">\[ \max_V\;\mathbb{E}_{(w,c)}\!\bigl[\log\sigma(w^\top V^\top V c)\bigr] - \mathbb{E}\!\bigl[\log\sigma(-w^\top V^\top V c)\bigr] \]</div>
+        <p class="small muted">With linear \(\phi(w)=Vw\), \(\phi(c)=Vc\): exact Mikolov '13 objective.</p>
+      </div>
+      <div>
+        <h3>MoCo = power iteration on EBM</h3>
+        <div class="eq tight" style="font-size:0.72em">\[ v_{t+1}(x) = \arg\min_v \,-\!\sum_{x'\!\in\mathcal{D}} \!\bigl[v(x'_k)^\top v_t(x) - \log\!\sum_i e^{v(x'_i)^\top v_t(x)}\bigr] \]</div>
+        <p class="small muted">Momentum encoder = fixed \(v_t\) from previous iteration. Queue = larger negative sample set.</p>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:12px"><span class="k">Unification</span>
+      Word2Vec, SimCLR, MoCo differ only in (binary vs rank) NCE and (single-step vs fixed-point). The <em>target</em> is identical.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Energy-Based · 24</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 27. Diffusion Spectral -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Energy-Based · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">Diffusion Spectral Representation <span class="muted" style="font-size:0.7em">(Shribak et&nbsp;al., 2024)</span></div>
+    <p>Gaussian-corrupt \(\tilde x'\sim\mathcal{N}(\sqrt{1-\beta}x', \beta\sigma^2 I)\) — still EBM spectral. <strong>Tweedie's identity</strong>:</p>
+    <div class="eq tight">\[ \begin{aligned} \nabla_{\tilde x'}\log\mathbb{P}(\tilde x'|x;\beta) &= \int \frac{\nabla_{\tilde x'}\log\mathbb{P}(\tilde x'|x';\beta)\;\mathbb{P}(\tilde x'|x';\beta)\,\mathbb{P}(x'|x)}{\mathbb{P}(\tilde x'|x;\beta)}\,dx' \\[2pt] &= \mathbb{E}_{\mathbb{P}(x'|\tilde x',x;\beta)}\!\bigl[\nabla_{\tilde x'}\log\mathbb{P}(\tilde x'|x';\beta)\bigr] \end{aligned} \]</div>
+    <p>For the Gaussian case, with \(\zeta(\tilde x',\beta):=\nabla_{\tilde x'}\mu(\tilde x',\beta)\):</p>
+    <div class="eq tight">\[ \tilde x' + \beta\sigma^2\, v(x)^\top \zeta(\tilde x',\beta) \;=\; \sqrt{1-\beta}\,\mathbb{E}_{\mathbb{P}(x'|\tilde x',x;\beta)}\bigl[x'\bigr] \]</div>
+    <p>\(\Rightarrow\) <strong>unbiased</strong> denoising loss; one network = generator + spectral rep \(v(x)\):</p>
+    <div class="eq tight">\[ \min_{v,\zeta} \; \mathbb{E}\!\left[\bigl\| \tilde x' + \beta\sigma^2\, v(x)^\top \zeta(\tilde x',\beta) - \sqrt{1-\beta}\,x' \bigr\|^2\right] \]</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Energy-Based · 25</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 28. SECTION DIVIDER — Latent variable -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">5</div>
+    <div class="sec-title">Latent-Variable Spectral Representation</div>
+    <div class="sec-blurb">DeepCluster · SeLa · DINO · SwAV — <span class="mono">P(z|x)</span> itself is a spectral rep.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 29. Latent variable rep -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Latent-Variable</div>
+    <div class="rule"></div>
+    <div class="slide-title"><span class="mono">P(z|x)</span> is itself a sufficient spectral representation</div>
+    <p>The latent marginal \(\mathbb{P}(z|x)\) gives a spectral decomposition of the transition operator:</p>
+    <div class="eq tight">\[ \begin{aligned} \mathbb{P}(x'\mid x) &= \int \mathbb{P}(x'\mid z)\,\mathbb{P}(z\mid x)\,dz \;=\; \int \frac{\mathbb{P}(z\mid x')\,\mathbb{P}(x')}{\mathbb{P}(z)}\,\mathbb{P}(z\mid x)\,dz \\[3pt] &= \mathbb{P}(x')\,\Bigl\langle \sqrt{\Lambda(z)}\,\mathbb{P}(z\mid x'),\;\; \sqrt{\Lambda(z)}\,\mathbb{P}(z\mid x)\Bigr\rangle_{L_2} \end{aligned} \]</div>
+    <p class="small muted">where \(\Lambda(z)=\tfrac{1}{\mathbb{P}(z)}\) is a diagonal operator, so \(\sqrt{\Lambda(z)}\,\mathbb{P}(z|x)\) spans the <em>same</em> function space as \(\mathbb{P}(z|x)\).</p>
+    <div class="callout"><span class="k">Consequence</span>
+      \(\mathbb{P}(z|x)\) is a <em>constrained</em> linear spectral rep (simplex-valued); learning the latent model learns the rep.
+    </div>
+    <p class="muted small">Trade-off: simplex constraint can cost dimensions (Prop 2 of Agarwal et al. 2020) but enables probabilistic modeling.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Latent-Variable · 27</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 30. DeepCluster -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Latent-Variable · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">DeepCluster &amp; SeLa: EM on a softmax latent model</div>
+    <p>Softmax \(\mathbb{P}(z|x)\) as an EBM (Eq. 78), equal to the Gaussian form (Eq. 79):</p>
+    <div class="eq tight">\[ \mathbb{P}(z|x) = \frac{\exp\!\bigl(v(x)^\top W_z + b_z\bigr)}{\sum_{z=1}^k \exp\!\bigl(v(x)^\top W_z + b_z\bigr)} \;\propto\; \exp\!\Bigl(-\tfrac{1}{2\sigma^2}\|Cz - v(x)\|^2\Bigr) \]</div>
+    <p class="small muted" style="margin:-2px 0 4px">connection: \(W_z = \tfrac{Cz}{\sigma^2}\), &nbsp; \(b_z = \tfrac{1}{2\sigma^2}\,z^\top C^\top C z\), &nbsp; \(z\in\{0,1\}^k,\ z^\top\mathbf{1}=1\) — DeepCluster treats \(C,W\) as <em>independent</em> (suboptimal).</p>
+    <p style="margin-bottom:2px">Maximum likelihood = variational ELBO, optimized by EM:</p>
+    <div class="eq tight" style="font-size:0.85em; margin:6px auto">\[ \max_{\mathbb{P}(z|x)} \mathbb{E}_{\mathcal{D}}\!\Bigl[\log\!\int \mathbb{P}(x|z)\mathbb{P}(z)\,dz\Bigr] \;=\; \max_{\mathbb{P}(z|x)}\max_{q(z|x)} \mathbb{E}_{\mathcal{D}}\!\Bigl[\mathbb{E}_{q(z|x)}\!\bigl[\log\mathbb{P}(x,z)\bigr] + H\bigl(q(z|x)\bigr)\Bigr] \]</div>
+    <div class="two-col" style="margin-top:6px">
+      <div class="card">
+        <h4>E-step</h4>
+        <div class="small">
+          \(\min_C \tfrac{1}{n}\sum_i \min_{z_i}\|Cz_i - v(x_i)\|^2\) — k-means pseudo-labels.
+        </div>
+        <div class="small" style="margin-top:6px"><strong>SeLa</strong>: + uniform marginal \(\sum_x q(z,x)=\tfrac1k\) ⇒ Sinkhorn labels (no collapse).</div>
+      </div>
+      <div class="card">
+        <h4>M-step</h4>
+        <div class="small">
+          \(\max_v \hat{\mathbb{E}}_\mathcal{D}\!\left[v(x_i)^\top W_{z_i} - \log\sum_z e^{v(x_i)^\top W_z}\right]\) — classification on pseudo-labels.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Latent-Variable · 28</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 31. DINO/SwAV -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Latent-Variable · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">DINO &amp; SwAV = power iteration on latent marginal</div>
+    <p>Stationary property \(\int \mathbb{P}(z|x')\,\mathbb{P}(x'|x)\,dx' = \mathbb{P}(z|x)\); match by KL (power iteration):</p>
+    <div class="eq tight">\[ \min_{\mathbb{P}(z|x)}\, \mathrm{KL}\!\Bigl(\!\textstyle\int \mathbb{P}_t(z|x')\,\mathbb{P}(x'|x)\,dx' \,\big\|\, \mathbb{P}(z|x)\!\Bigr) \;\;\Longleftrightarrow\;\; \max_{\mathbb{P}(z|x)}\, \hat{\mathbb{E}}_{x,x'}\,\mathbb{E}_{\mathbb{P}_t(z|x')}\!\bigl[\log\mathbb{P}(z|x)\bigr] \]</div>
+    <p>Softmax \(\mathbb{P}(z|x)\propto\exp(v(x)^\top W_z + b_z)\) gives:</p>
+    <div class="eq tight">\[ \max_v\; \hat{\mathbb{E}}_{x,x'}\!\mathbb{E}_{\mathbb{P}_t(z|x)}\!\left[v(x)^\top W_z - \log\!\sum_z e^{v(x)^\top W_z}\right] \]</div>
+    <p class="small" style="margin-top:8px">Differ only in \(\mathbb{P}_t(z|x)\): <strong>DINO</strong> = previous-iteration teacher (EMA, centering/sharpening); <strong>SwAV</strong> = optimal-transport (Sinkhorn) assignment — the <em>same</em> fixed-point rule.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Latent-Variable · 29</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 32. SeLa & family -->
+<!-- ============================================================ -->
+<!-- COMMENTED OUT
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Latent-Variable · Method</div>
+    <div class="rule"></div>
+    <div class="slide-title">SeLa &amp; variants — M-step with transport constraints</div>
+    <p>SeLa keeps the DeepCluster M-step, but replaces the E-step with</p>
+    <div class="eq tight">\[ \max_{v}\max_{q(z,x)}\; \bigl\langle q(z,x),\log\mathbb{P}(z|x)\bigr\rangle - \mathrm{KL}(q(z,x)\,\|\,p(z,c)), \quad \text{s.t. }\textstyle\sum_{x\in\mathcal{D}} q(z,x) = \tfrac{1}{k}. \]</div>
+    <p>Uniform marginal on \(z\) ⇒ optimal-transport assignment, avoiding the "everything-in-one-cluster" degeneracy.</p>
+    <div class="callout"><span class="k">Other variants recovered</span>
+      Variational ELBO multi-view, RBM with contrastive divergence, and adversarial training — all fit this latent-variable spectral slot with different \(q(z,x)\) and different penalties.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Latent-Variable · 30</span></div>
+</section>
+-->
+
+<!-- ============================================================ -->
+<!-- 33. SECTION DIVIDER — Nonlinear & multimodal -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">6</div>
+    <div class="sec-title">Multi-Modal</div>
+    <div class="sec-blurb">CLIP · SigLIP · SogLIP / AmorLIP / NeuCLIP — same skeleton, two endpoints.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 34. Nonlinear -->
+<!-- ============================================================ -->
+<!-- COMMENTED OUT
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Nonlinear</div>
+    <div class="rule"></div>
+    <div class="slide-title">Generalize \(e^{\cdot}\) to any positive-definite kernel</div>
+    <p>Replace the exponential in the EBM by a kernel network \(\mathrm{nn}_\theta\):</p>
+    <div class="eq">\[ \mathbb{P}(x'\mid x) \;=\; \mathbb{P}(x')\,\bigl\langle \mathrm{nn}_\theta(v(x')),\,\mathrm{nn}_\theta(v(x))\bigr\rangle \]</div>
+    <p>Then the full \(\varphi(x) = f(v(x))\) is still a spectral rep, and \(\mathrm{nn}_\theta\) plays the role of an <em>asymmetric projector</em>.</p>
+    <div class="callout"><span class="k">SimSiam = nonlinear BYOL</span>
+      The predictor head \(\mathrm{nn}_\theta\) is exactly the nonlinear projector in this parametrization; stop-gradient is the "target-network" step of power iteration.
+    </div>
+    <p class="muted small">Neural product \(\mathrm{nn}_\theta(\langle v(x'),v(x)\rangle)\) is another variant — all fit inside the spectral framework.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Nonlinear · 31</span></div>
+</section>
+-->
+
+<!-- ============================================================ -->
+<!-- 35. Multi-modal -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Multi-Modal</div>
+    <div class="rule"></div>
+    <div class="slide-title">Multi-modal SSL = spectral rep of cross-modal PMI</div>
+    <p>Given paired \((x,y)\in\) (image, text), (audio, video), …</p>
+    <div class="eq tight">\[ \frac{\mathbb{P}(x,y)}{\mathbb{P}(x)\mathbb{P}(y)} \;=\; \bigl\langle \phi(x),\,\mu(y)\bigr\rangle \;\text{or}\; \propto \exp\!\bigl(\langle\phi(x),\nu(y)\rangle\bigr) \]</div>
+    <p class="small muted" style="margin:2px 0 0">energy-based conditionals (Eq. 120):</p>
+    <div class="eq tight">\[ \mathbb{P}(x|y) = \tfrac{1}{Z(y)}\,\mathbb{P}(x)\exp\!\bigl(\langle\phi(x),\nu(y)\rangle\bigr), \qquad \mathbb{P}(y|x) = \tfrac{1}{Z(x)}\,\mathbb{P}(y)\exp\!\bigl(\langle\phi(x),\nu(y)\rangle\bigr) \]</div>
+    <ul>
+      <li><strong>CLIP</strong>: rank-NCE on the multi-modal EBM — log-sum-exp over a batch.</li>
+      <li><strong>SigLIP</strong>: binary NCE — unbiased gradient, but adds a temperature to compensate for the unnormalized implicit assumption.</li>
+    </ul>
+    <p class="muted small">Downstream classification (linear) &amp; retrieval (inner product) follow the same sufficient-rep argument.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Multi-Modal · 31</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 36. CLIP family comparison -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Multi-Modal</div>
+    <div class="rule"></div>
+    <div class="slide-title">CLIP is log-sum-exp biased — the SogLIP / AmorLIP / NeuCLIP story</div>
+    <p>MLE of the multi-modal EBM requires computing \(Z(x), Z(y)\). Three ways to sidestep:</p>
+    <div class="three-col">
+      <div class="card"><h4>SogLIP</h4>
+        <div class="small">Nonparametric moving-average of \(Z_x^t, Z_y^t\) — \(O(n)\) memory, cheap updates.</div></div>
+      <div class="card"><h4>AmorLIP</h4>
+        <div class="small">Amortize \(Z(x),Z(y)\) in a tiny network on top of \(\phi,\nu\) — fits our Eq. 53.</div></div>
+      <div class="card"><h4>NeuCLIP</h4>
+        <div class="small">Fenchel dual of the partition function — convex surrogate, unbiased.</div></div>
+    </div>
+    <div class="callout" style="margin-top:14px"><span class="k">Same axis everywhere</span>
+      Whether language-image or single-modal SSL, the method's reach is dictated by <strong>how you estimate the partition function</strong> — bias vs memory vs tuning.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Multi-Modal · 32</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 37. SECTION DIVIDER — Applications -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">7</div>
+    <div class="sec-title">Applications Beyond SSL</div>
+    <div class="sec-blurb">Regression / classification · causal inference · control &amp; RL — same spectral backbone.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 40. Regression / classification -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Applications · Regression &amp; Classification</div>
+    <div class="rule"></div>
+    <div class="slide-title">Light-weight downstream: a linear head is enough</div>
+    <p>With sufficient spectral rep \(\varphi(x)\), so that \(\mathbb{P}(y\mid x) = \langle \varphi(x), \mu(y) \rangle\), the optimal regressor and Bayes classifier both reduce to linear maps:</p>
+    <div class="two-col">
+      <div class="card"><h4>Regression</h4>
+        <div class="eq tight" style="margin:6px 0; font-size:0.82em">\[ \begin{aligned} \mathbb{E}[y\mid x] &= \int y\,\mathbb{P}(y\mid x)\,dy \\ &= \bigl\langle \varphi(x),\, \underbrace{\textstyle\int y\,\mu(y)\,dy}_{w}\bigr\rangle \end{aligned} \]</div>
+        <div class="small muted">Any L1/L2/robust statistic inherits the same structure.</div>
+      </div>
+      <div class="card"><h4>Classification</h4>
+        <div class="eq tight" style="margin:6px 0; font-size:0.76em">\[ \begin{aligned} R(y{=}i\mid x) &= \textstyle\sum_{j} \omega(i,j)\,\mathbb{P}(y{=}j\mid x) \\ &= \textstyle\sum_{j} \omega(i,j)\,\bigl\langle \varphi(x),\mu(y{=}j)\bigr\rangle \\ &= \bigl\langle \varphi(x),\, \underbrace{\textstyle\sum_{j} \omega(\cdot,j)\,\mu(y{=}j)}_{W=\Omega\mu(\cdot)}\bigr\rangle \\ &\Rightarrow\ \arg\min_{y}\,\langle W_y,\varphi(x)\rangle \end{aligned} \]</div>
+        <div class="small muted">Bayes decision, logistic, softmax — all linear heads.</div>
+      </div>
+    </div>
+    <p class="muted small" style="margin-top:14px">This justifies why <em>linear probes</em> are the accepted SSL evaluation protocol — they are the <em>optimal</em> downstream.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Applications · 34</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 41. RL -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Applications · Control &amp; RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral MDP: a universal feature for value functions</div>
+    <p>Spectral factorization of the transition \(\mathbb{P}(s'|s,a) = \langle\varphi(s,a),\mu(s')\rangle\) &nbsp;+&nbsp; \(r(s,a)=\langle\varphi(s,a),\theta_r\rangle\) implies, for <em>any</em> policy \(\pi\):</p>
+    <div class="eq">\[ Q^\pi(s,a) \;=\; \bigl\langle \varphi(s,a),\,\underbrace{\theta_r + \gamma\!\int \mu(s')V^\pi(s')\,ds'}_{\eta^\pi}\bigr\rangle \]</div>
+    <ul>
+      <li>Linear LSTD ⇒ <em>efficient</em> TD learning.</li>
+      <li>Posterior over \(\eta^\pi\) ⇒ <em>tractable</em> exploration bonuses.</li>
+      <li>Works for low-rank, partial-observable, and continuous-control MDPs (Ren · Zhang · Shribak · Gao · Nabati et&nbsp;al.).</li>
+    </ul>
+    <p class="muted small">Same spectral rep that underlies SSL vision models can be learned for dynamics ⇒ one encoder for perception, control, and planning.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Applications · 35</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 42. Causal inference -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Applications · Causal Inference</div>
+    <div class="rule"></div>
+    <div class="slide-title">Instrumental variables &amp; proxy causal inference</div>
+    <div style="display:grid; grid-template-columns:1.55fr 0.8fr; gap:26px; align-items:center">
+      <div>
+        <p>IV regression: instrument \(z\), treatment \(x\), outcome \(y\), confounder \(\epsilon\); structural map \(f:x\to y\). With \(\mathbb{P}(z|x)=\mathbb{P}(z)\langle\varphi(x),\mu(z)\rangle\), \(\mathcal{E}f\) is <strong>spectral</strong> in \(\mu(z)\):</p>
+        <div class="eq tight">\[ \mathcal{E}f = \int f(x)\,\mathbb{P}(x|z)\,dx = \Bigl\langle \mu(z),\, \underbrace{\textstyle\int f(x)\,\varphi(x)\,\mathbb{P}(x)\,dx}_{w_f}\Bigr\rangle \]</div>
+        <p>Split \(f = f^\parallel + f^\perp\) (\(f^\perp\in\mathcal{N}(\varphi)\)); the \(\perp\)-part vanishes:</p>
+        <div class="eq tight" style="font-size:0.9em">\[ \mathbb{E}_{x|z}[f] = \bigl\langle \mu(z),\,\textstyle\int \varphi(x) f^\parallel(x)\mathbb{P}(x)dx\bigr\rangle + \underbrace{\bigl\langle \mu(z),\,\textstyle\int \varphi(x) f^\perp(x)\mathbb{P}(x)dx\bigr\rangle}_{=\,0} \]</div>
+        <div class="callout"><span class="k">Both sides are spectral</span>
+          Effective \(f(x)=v^\top\varphi(x)\), <em>no loss</em>; primal \(\varphi(x)\) &amp; dual \(\mu(z)\) share the SVD of \(\mathbb{P}(x|z)\).
+        </div>
+      </div>
+      <div style="text-align:center">
+        <svg viewBox="0 0 220 175" width="100%" style="max-width:250px">
+          <defs><marker id="cah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker></defs>
+          <line x1="52" y1="135" x2="91" y2="135" stroke="#475569" stroke-width="1.6" marker-end="url(#cah)"/>
+          <line x1="127" y1="135" x2="166" y2="135" stroke="#475569" stroke-width="1.6" marker-end="url(#cah)"/>
+          <line x1="141" y1="60" x2="118" y2="118" stroke="#475569" stroke-width="1.6" marker-end="url(#cah)"/>
+          <line x1="153" y1="60" x2="178" y2="118" stroke="#475569" stroke-width="1.6" marker-end="url(#cah)"/>
+          <circle cx="35" cy="135" r="17" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
+          <circle cx="110" cy="135" r="17" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
+          <circle cx="185" cy="135" r="17" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
+          <circle cx="147" cy="45" r="16" fill="#ffffff" stroke="#475569" stroke-width="1.2"/>
+          <text x="35" y="140" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-style="italic" fill="#0f172a">Z</text>
+          <text x="110" y="140" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-style="italic" fill="#0f172a">X</text>
+          <text x="185" y="140" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-style="italic" fill="#0f172a">Y</text>
+          <text x="147" y="50" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-style="italic" fill="#0f172a">&#949;</text>
+        </svg>
+        <div class="legend" style="margin-top:6px; color:var(--fg-muted)">(a) instrumental variable<br><span style="font-size:0.85em">grey = observable</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Applications · 36</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 43. Applications summary / controllable synthesis -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Applications</div>
+    <div class="rule"></div>
+    <div class="slide-title">One representation, many downstream problems</div>
+    <div class="three-col">
+      <div class="card"><h4>Prediction</h4>
+        <ul class="small"><li>Linear probe = optimal head</li><li>Robust / quantile / softmax</li><li>Retrieval via inner product</li></ul>
+      </div>
+      <div class="card"><h4>Causal identification</h4>
+        <ul class="small"><li>IV regression</li><li>IV + observed confounders</li><li>Proxy causal (2-bridge)</li></ul>
+      </div>
+      <div class="card"><h4>Control / RL</h4>
+        <ul class="small"><li>Linear-MDP planning</li><li>Spectral Bellman</li><li>Uncertainty-guided exploration</li></ul>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px">Controllable synthesis in generative models, animal-behavior discovery, and off-policy evaluation also fit — see the paper for details.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Applications · 37</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 44. SECTION DIVIDER — Closing -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">8</div>
+    <div class="sec-title">Closing</div>
+    <div class="sec-blurb">One sentence. Two open axes. Thanks.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 45. Take-away -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad" style="justify-content:center">
+    <div class="eyebrow">Take-away</div>
+    <div class="rule"></div>
+    <div class="slide-title">If you remember one thing</div>
+    <div class="boxed" style="font-size:1.35em; line-height:1.4; padding:26px 30px; margin:20px 0">
+      All of these algorithms — from PCA to SimCLR to DINO to CLIP to diffusion — are extracting the <strong>spectral representation of the pairwise mutual information</strong>.
+    </div>
+    <p class="muted" style="margin-top:18px">They differ only in how they <em>parametrize</em> the rep and how they <em>optimize</em> the underlying decomposition.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Closing · 39</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 46. Open problems -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Open Problems</div>
+    <div class="rule"></div>
+    <div class="slide-title">Two axes that actually matter</div>
+    <div class="two-col">
+      <div class="card" style="border-left:4px solid var(--accent-a)">
+        <h4>Parametrization</h4>
+        <ul class="small">
+          <li>Linear SVD: finite-dim, cheap, rank-limited.</li>
+          <li>EBM: infinite-dim, but nonlinear downstream.</li>
+          <li>Latent-var: probabilistic, but simplex-constrained.</li>
+          <li>Which for which task? — largely open.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-c)">
+        <h4>Optimization</h4>
+        <ul class="small">
+          <li>Unbiased SGD (square, rank-NCE, BYOL) vs biased (Barlow, VICReg, CLIP).</li>
+          <li>Partition-function approximations (SogLIP / AmorLIP / NeuCLIP) differ wildly in memory/accuracy.</li>
+          <!-- <li>Empirical gaps are real — but <em>cause</em> is opt, not objective.</li> -->
+        </ul>
+      </div>
+    </div>
+    <!-- <p class="muted" style="margin-top:14px">Future work: ablate parametrization &amp; optimization inside the framework, not across ad-hoc designs.</p> -->
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Closing · 40</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 47. Thank you -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad" style="justify-content:center">
+    <div class="spectrum" style="height:6px;width:220px;border-radius:6px;background:linear-gradient(90deg,#7c3aed 0%,#4f46e5 25%,#3b82f6 50%,#06b6d4 75%,#10b981 100%);margin-bottom:32px"></div>
+    <div class="slide-title" style="font-size:2.2em">Thank you.</div>
+    <div style="margin:20px 0 14px; padding-left:14px; border-left:3px solid var(--accent-a); font-family:'Source Serif 4',serif; font-size:0.92em; line-height:1.45; color:var(--fg)">
+      Bo Dai, Na Li, Dale Schuurmans.
+      <a href="https://arxiv.org/pdf/2601.20154" style="color:var(--accent-a); text-decoration:none; border-bottom:1px solid var(--accent-a); font-weight:600">&ldquo;Spectral Ghost in Representation Learning: from Component Analysis to Self-Supervised Learning&rdquo;</a>,
+      <em>arXiv:2601.20154</em>, 2026.
+      <div style="margin-top:8px">
+        Chenxiao Gao, Haotian Sun, Na Li, Dale Schuurmans, Bo Dai.
+        <a href="https://arxiv.org/pdf/2512.15036" style="color:var(--accent-a); text-decoration:none; border-bottom:1px solid var(--accent-a); font-weight:600">&ldquo;Spectral Representation-based Reinforcement Learning&rdquo;</a>,
+        <em>arXiv:2512.15036</em>, 2025.
+      </div>
+    </div>
+    <hr class="soft"/>
+    <p class="small"><strong>Acknowledgments.</strong> NSF AI Institute (2112085), NSF ECCS-2401390, ECCS-2401391, ONR N000142512173, NSF IIS-2403240. </p>
+    <!-- With thanks to Jincheng Mei, Daniel Guo, Chenxiao Gao, Haotian Sun.</p> -->
+    <p class="small muted"><strong>Collaborators across the line of work:</strong> Na Li, Dale Shuurmans, Tongzheng Ren,  Haotian Sun, Chenxiao Gao, Tianjun Zhang, Hongming Zhang, Zhaolin Ren, Haitong Ma,Dmitry Shribak, Yang Hu, Zhaohan Daniel Guo, Jiyi Wang, Ofir Nabati, Niao He, Hanjun Dai, Ofir Nachum, and many more.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost in Representation Learning</span><span class="rhs">Thanks · 41</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- APPENDIX DIVIDER -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">A</div>
+    <div class="sec-title">Appendix · Detailed Derivations</div>
+    <div class="sec-blurb">For Q&amp;A: full Barlow-Twins, BYOL, SimCLR, DINO, Diffusion, RBM &amp; adversarial derivations.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A1. Barlow Twins full -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A1</div>
+    <div class="rule"></div>
+    <div class="slide-title">Barlow Twins — full derivation</div>
+    <p>Denote \(A := \mathbb{E}[\varphi(x)\varphi(x)^\top] = U\Lambda U^\top\). Choose \(Z=U\Lambda^{-1}\), \(\xi(x)=Z^\top\varphi(x)\). SVD variational form:</p>
+    <div class="eq tight">\[ \int T(x,x')\sqrt{\mathbb{P}(x)}\xi(x)\sqrt{\mathbb{P}(x')}\xi(x')^\top dx\,dx' \;=\; Z^\top A^\top A Z \;=\; \mathbf{I} \]</div>
+    <p>Therefore \(\min_\xi \|\mathbf{I} - \mathbb{E}_{\mathbb{P}(x,x')}[\xi(x)\xi(x')^\top]\|_F^2\). Let</p>
+    <div class="eq tight">\[ C_{ij} = \Lambda^{-1}U^\top\mathbb{E}_{\mathbb{P}(x,x')}[\varphi(x)\varphi(x')^\top]U\Lambda^{-1}, \qquad U^\top \mathbb{E}[\varphi\varphi^\top]U = \Lambda. \]</div>
+    <div class="eq tight">\[ \Rightarrow\;\min_{U,\varphi}\; \sum_i (1-C_{ii})^2 + \lambda\sum_{i\ne j} C_{ij}^2 \quad\text{(exact Zbontar et al. '21)} \]</div>
+    <p class="muted small"><strong>Bias.</strong> \((1-C_{ii})^2\) is a square-of-expectation ⇒ stochastic gradient is biased; requires large batches.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A1 · 43</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A2. BYOL full -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A2</div>
+    <div class="rule"></div>
+    <div class="slide-title">BYOL — full fixed-point derivation</div>
+    <p>Set \(Z=U\); fixed-point eigenvalue condition:</p>
+    <div class="eq tight">\[ \int T(x,x')\sqrt{\mathbb{P}(x')}\,\xi(x')\,dx' \;=\; \Lambda\sqrt{\mathbb{P}(x)}\,\xi(x) \]</div>
+    <p>Iterate: &nbsp;learn \(\Lambda\) with \(\xi_t\) fixed:</p>
+    <div class="eq tight">\[ \min_\Lambda \; \mathbb{E}_{\mathbb{P}(x',x)}\!\bigl[\|\Lambda\xi_t(x) - \xi_t(x')\|_2^2\bigr] \]</div>
+    <p>then learn \(\xi_{t+1}\) with \(\Lambda\) fixed:</p>
+    <div class="eq tight">\[ \min_\xi \; \mathbb{E}_{\mathbb{P}(x',x)}\!\bigl[\|\Lambda\xi(x) - \xi_t(x')\|_2^2\bigr] \]</div>
+    <p>Together = <strong>exact BYOL</strong> (Grill et al. 2020). \(\Lambda\) = predictor head; \(\xi_t\) = target network.</p>
+    <p class="muted small"><strong>MINC variant</strong> uses a generalized Hebbian rule with lower-triangular matrix operation for orthogonalization (Guo et al. 2025).</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A2 · 44</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A3. SimCLR from EBM full -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A3</div>
+    <div class="rule"></div>
+    <div class="slide-title">SimCLR = rank-NCE on the EBM parametrization</div>
+    <p>EBM \(\mathbb{P}(x'|x) \propto \mathbb{P}(x')\exp(v(x')^\top v(x))\). Plug into rank posterior:</p>
+    <div class="eq tight">\[ p_\theta\!\bigl(k\,|\,\{x'_i\}_{i=1}^k, x\bigr) \;=\; \frac{\exp(v(x'_k)^\top v(x))}{\sum_{j=1}^k \exp(v(x'_j)^\top v(x))} \]</div>
+    <p>Multi-class logistic regression:</p>
+    <div class="eq tight">\[ \min_v -\mathbb{E}_{\mathbb{P}(x,x')}\!\bigl[v(x')^\top v(x)\bigr] + \mathbb{E}_{\mathbb{P}(x)}\!\left[\log\!\sum_i \exp(v(x'_i)^\top v(x))\right] \]</div>
+    <p>With L2-normalization \(v \to v/\|v\|_2\): <strong>exact SimCLR</strong>.</p>
+    <p class="muted small"><strong>Partition-function handling.</strong> EBM with normalizer \(Z(x) = \int\mathbb{P}(x')e^{v(x')^\top v(x)}dx'\) can be absorbed into \(\phi_\omega(x)\) via Fourier decomposition (Eq. 53 of the paper).</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A3 · 45</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A4. DINO/SwAV full -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A4</div>
+    <div class="rule"></div>
+    <div class="slide-title">DINO &amp; SwAV — full derivation</div>
+    <p>Latent spectral property: \(\int\mathbb{P}(z|x')\mathbb{P}(x'|x)dx' = \mathbb{P}(z|x)\). KL-match at iteration \(t\):</p>
+    <div class="eq tight">\[ \min_{\mathbb{P}(z|x)}\;\mathbb{E}_{x,x'}\mathbb{E}_{\mathbb{P}_t(z|x')}[\log\mathbb{P}(z|x)] \;+\; \mathbb{E}_{x,x'}\mathbb{E}_{\mathbb{P}_t(z|x)}[\log\mathbb{P}(z|x')] \]</div>
+    <p>Softmax \(\mathbb{P}(z|x) \propto \exp(v(x)^\top W_z + b_z)\) gives</p>
+    <div class="eq tight">\[ \max_v \;\hat{\mathbb{E}}_{x,x'}\mathbb{E}_{\mathbb{P}_t(z|x)}\!\Bigl[v(x)^\top W_z + b_z - \log\!\sum_z e^{v(x)^\top W_z + b_z}\Bigr] + \text{(swap roles)} \]</div>
+    <ul>
+      <li><strong>DINO</strong>: \(\mathbb{P}_t(z|x)\) = previous iteration teacher ⇒ EMA + centering + sharpening.</li>
+      <li><strong>SwAV</strong>: \(\mathbb{P}_t(z|x)\) via optimal-transport Sinkhorn (same as SeLa E-step).</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A4 · 46</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A5. Diffusion spectral full -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A5</div>
+    <div class="rule"></div>
+    <div class="slide-title">Diffusion spectral representation — full derivation</div>
+    <p>Gaussian-noised sample \(\tilde x'\sim\mathcal{N}(\sqrt{1-\beta}x',\beta\sigma^2 I)\):</p>
+    <div class="eq tight">\[ \mathbb{P}(\tilde x'|x;\beta) \;=\; \int \mathbb{P}(\tilde x'|x';\beta)\mathbb{P}(x')\exp(v(x)^\top v(x'))dx' \;\propto\; \exp(v(x)^\top\mu(\tilde x',\beta)) \]</div>
+    <p>Tweedie's identity: \(\nabla_{\tilde x'}\log\mathbb{P}(\tilde x'|x;\beta) = \mathbb{E}_{\mathbb{P}(x'|\tilde x',x;\beta)}[\nabla_{\tilde x'}\log\mathbb{P}(\tilde x'|x';\beta)]\), Gaussian case:</p>
+    <div class="eq tight">\[ \tilde x' + \beta\sigma^2 v(x)^\top \zeta(\tilde x',\beta) \;=\; \sqrt{1-\beta}\,\mathbb{E}[\,x'\,] \]</div>
+    <p>Learn \(v, \zeta\) by the denoising objective (above). <strong>Same network</strong> provides the generative model <em>and</em> the spectral representation.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A5 · 47</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A6. RBM / CD -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A6</div>
+    <div class="rule"></div>
+    <div class="slide-title">Restricted Boltzmann machine &amp; contrastive divergence</div>
+    <p>Softmax \(\mathbb{P}(z|x)\) with Gaussian emission \(\mathbb{P}(v(x)|z) = \mathcal{N}(Cz,\sigma^2 I)\):</p>
+    <div class="eq tight">\[ \max_{W,v}\;\mathbb{E}_x\!\Bigl[\log\!\sum_z e^{v(x)^\top W z} - \log\!\int\!\sum_z e^{v(x)^\top W z}dx\Bigr] \]</div>
+    <p>Blockwise-Gibbs sampling of \((x,z)\) via Langevin on \(x\)-side, softmax on \(z\)-side ⇒ Hinton's <strong>contrastive divergence</strong> on the latent spectral model.</p>
+    <div class="callout"><span class="k">Bonus sampler</span>
+      New alternative: sample \(y\sim\mathcal{N}(Cz,\sigma^2 I)\), then take \(x = \arg\min_x\|y-v(x)\|^2\). Avoids Langevin's step-size tuning.
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A6 · 48</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A7. Adversarial training -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A7</div>
+    <div class="rule"></div>
+    <div class="slide-title">Adversarial training for latent spectral rep</div>
+    <p>Fenchel dual of the intractable f-divergence:</p>
+    <div class="eq tight">\[ \min_{\mathbb{P}(z|x)}\,\mathbb{E}_{x,x'}\mathbb{E}_{\mathbb{P}(z|x')}\!\left[f\!\left(\tfrac{\mathbb{P}(z|x)}{\int \mathbb{P}(z|x')\mathbb{P}(x'|x)dx'}\right)\right] \]</div>
+    <div class="eq tight">\[ =\;\min_{\mathbb{P}(z|x)}\max_{g}\; \mathbb{E}_{x\sim\mathcal{D}}\mathbb{E}_{\mathbb{P}(z|x)}[g(x,z)] - \mathbb{E}_{x\sim\mathcal{D}}\mathbb{E}_{\mathbb{P}(z|x')\mathbb{P}(x'|x)}[f^*(g(x,z))] \]</div>
+    <p>Continuous \(z\): reparameterization. &nbsp;Discrete \(z\): enumerate. &nbsp;Min-max saddle — needs stabilization in practice.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix A7 · 49</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- A8. References -->
+<!-- ============================================================ -->
+<!-- <section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix · References</div>
+    <div class="rule"></div>
+    <div class="slide-title" style="font-size:1.6em; line-height:1.25; margin-top:32px">Spectral Ghost in Representation Learning: from Component Analysis to Self-Supervised Learning</div>
+    <div class="spacer-lg"></div>
+    <h3 style="font-family:'Inter',sans-serif; font-size:0.78em; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-a); font-weight:600; margin-bottom:10px">Authors</h3>
+    <p style="font-size:1.1em">Bo Dai, Na Li, Dale Schuurmans</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Ghost</span><span class="rhs">Appendix · 55</span></div>
+</section> -->
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/math/math.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  controls: true,
+  progress: true,
+  slideNumber: 'c/t',
+  width: 1280,
+  height: 800,
+  margin: 0.04,
+  minScale: 0.2,
+  maxScale: 1.8,
+  transition: 'fade',
+  transitionSpeed: 'fast',
+  katex: {
+    version: '0.16.9',
+    macros: {
+      "\\P": "\\mathbb{P}",
+      "\\E": "\\mathbb{E}",
+      "\\R": "\\mathbb{R}",
+      "\\inner": "\\langle #1, #2 \\rangle"
+    }
+  },
+  plugins: [ RevealMath.KaTeX, RevealNotes ]
+});
+</script>
+</body>
+</html>
