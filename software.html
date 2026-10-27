@@ -1,98 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-	<meta charset="htf-8">
-
-	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-
-	<title> Bo Dai - Software </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bo Dai - Software</title>
+	<link rel="preload" href="fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="fonts/roboto-slab-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link href="css/site.css" rel="stylesheet">
+	<script>
+	try { var t = localStorage.getItem('theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+</script>
 </head>
 
 <body>
-
-
-	<script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-
-	<div class="container">
-
-		<div class="row">
-			<div class="span6">
-				<h1>Bo Dai</h1>
+	<header class="topbar">
+		<nav class="bar" aria-label="main">
+			<a class="brand" href="index.html">Bo Dai</a>
+			<div class="links">
+			<a href="index.html">Home</a>
+			<a href="publications.html">Talks &amp; Publications</a>
+			<a href="teaching.html">Teaching</a>
+			<a href="awards.html">Awards</a>
+			<a href="team.html">Team</a>
+			<a href="software.html" aria-current="page">Software</a>
 			</div>
-			<div class="span6">
-				<img src="images/cse-logo.jpg" style="float:right;" width="50%" alt="Georgia Tech">
-				<br>
-			</div>
-			<div class="span6">
-				<img src="images/google-deep-mind-logo.jpg" style="float:right;" width="50%" alt="Google DeepMind">
-			</div>
+			<button class="theme" type="button" data-theme-toggle aria-label="toggle theme" title="Toggle theme"><span class="sun">☀</span><span class="moon">☾</span></button>
+		</nav>
+	</header>
+
+	<main class="wrap">
+		<div class="page-head">
+			<p class="kicker">Software</p>
+			<h1>Software</h1>
 		</div>
 
-		<div class="navbar">
-			<div class="navbar-inner">
-				<div class="container">
-					<ul class="nav">
-						<li>
-							<a href="index.html">Home</a>
-						</li>
-						<li>
-							<a href="publications.html">Talks &amp; Publications</a>
-						</li>
-						<li>
-							<a href="teaching.html">Teaching</a>
-						</li>
-						<li>
-							<a href="awards.html">Selected Awards</a>
-						</li>
-						<li>
-							<a href="team.html">Team</a>
-						</li>
-						<li class="active">
-							<a href="software.html">Software</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+		<section>
+			<ul class="pubs">
+				<li class="pub">
+					<p class="title">STACX (STandAloneCompleX)</p>
+					<p class="desc">A Modular Infrastructure for End-to-End Agentic Reinforcement Learning.</p>
+					<div class="chips"><a class="chip" href="https://stacx.github.io/web/">Webpage</a><a class="chip" href="https://github.com/STACX/stacx/tree/main">Code</a></div>
+				</li>
+				<li class="pub">
+					<p class="title">MLE-Dojo</p>
+					<p class="desc">Interactive environments for empowering LLM agents in Machine Learning Engineering.</p>
+					<div class="chips"><a class="chip" href="https://mle-dojo.github.io/MLE-Dojo-page/">Webpage</a><a class="chip" href="https://github.com/MLE-Dojo/MLE-Dojo">Code</a></div>
+				</li>
+				<li class="pub">
+					<p class="title">Flow RL</p>
+					<p class="desc">A high-performance reinforcement learning library with flow and diffusion models.</p>
+					<div class="chips"><a class="chip" href="https://github.com/typoverflow/flow-rl">Code</a></div>
+				</li>
+				<li class="pub">
+					<p class="title">Representation-based Reinforcement Learning</p>
+					<p class="desc">The implementation of our research on provable and practical reinforcement learning algorithms for general stochastic nonlinear dynamics through the representation lens.</p>
+					<div class="chips"><a class="chip" href="https://spectral-rl.github.io/">Webpage</a><a class="chip" href="https://github.com/spectral-rl/spectral-rl">Code</a></div>
+				</li>
+				<li class="pub">
+					<p class="title">Representation-based Control Toolbox</p>
+					<p class="desc">The implementation of our nonlinear stochastic control solver upon spectral representation.</p>
+					<div class="chips"><a class="chip" href="https://repr-control-orgnaization.readthedocs.io/en/latest/">Webpage</a><a class="chip" href="https://github.com/CoNG-harvard/repr_control">Code</a></div>
+				</li>
+			</ul>
+		</section>
+	</main>
 
-		<div class="row">
-			<div class="span10 offset2">
-				<p> 
-					<strong> STACX (STandAloneCompleX) </strong>: A Modular Infrastructure for End-to-End Agentic Reinforcement Learning. 
-					<br> [ <a href="https://stacx.github.io/web/">Webpage</a> ] [ <a href="https://github.com/STACX/stacx/tree/main">Code</a> ]		
-				</p>
-			</div>			<div class="span10 offset2">
-				<p> 
-					<strong> MLE-Dojo </strong>: Interactive environments for empowering LLM agents in Machine Learning Engineering. 
-					<br> [ <a href="https://mle-dojo.github.io/MLE-Dojo-page/">Webpage</a> ] [ <a href="https://github.com/MLE-Dojo/MLE-Dojo">Code</a> ]		
-				</p>
-			</div>
-			<div class="span10 offset2">
-				<p> 
-					<strong> Flow RL </strong>: A high-performance reinforcement learning library with flow and diffusion models. 
-					<br> [ <a href="https://github.com/typoverflow/flow-rl">Code</a> ]		
-				</p>
-			</div>
-			<div class="span10 offset2">
-				<p> 
-					<strong> Representation-based Reinforcement Learning </strong>: The implementation of our research on provable and practical reinforcement learning algorithms for general stochastic nonlinear dynamics through the representation lens.
-					<br> [ <a href="https://spectral-rl.github.io/">Webpage</a> ] [ <a href="https://github.com/spectral-rl/spectral-rl">Code</a> ]		
-				</p>
-			</div>
-			<div class="span10 offset2">
-				<p> 
-					<strong> Representation-based Control Toolbox </strong>: The implementation of our nonlinear stochastic control solver upon spectral representation. 
-					<br> [ <a href="https://repr-control-orgnaization.readthedocs.io/en/latest/">Webpage</a> ] [ <a href="https://github.com/CoNG-harvard/repr_control">Code</a> ]		
-				</p>
-			</div>
+	<footer>
+		<div class="wrap">
+			<span>Bo Dai · Georgia Tech CSE</span>
+			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
 		</div>
+	</footer>
 
-		
+	<script>
+	document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+		var root = document.documentElement, next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try { localStorage.setItem('theme', next); } catch (e) {}
+	});
+</script>
 </body>
 
 </html>

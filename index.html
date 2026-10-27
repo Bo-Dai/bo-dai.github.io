@@ -1,203 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-	<meta charset="htf-8">
-
-	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-
-	<title> Bo Dai's Homepage </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bo Dai</title>
+	<link rel="preload" href="fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="fonts/roboto-slab-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link href="css/site.css" rel="stylesheet">
+	<script>
+	try { var t = localStorage.getItem('theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+</script>
 </head>
 
 <body>
+	<header class="topbar">
+		<nav class="bar" aria-label="main">
+			<a class="brand" href="index.html">Bo Dai</a>
+			<div class="links">
+			<a href="index.html" aria-current="page">Home</a>
+			<a href="publications.html">Talks &amp; Publications</a>
+			<a href="teaching.html">Teaching</a>
+			<a href="awards.html">Awards</a>
+			<a href="team.html">Team</a>
+			<a href="software.html">Software</a>
+			</div>
+			<button class="theme" type="button" data-theme-toggle aria-label="toggle theme" title="Toggle theme"><span class="sun">☀</span><span class="moon">☾</span></button>
+		</nav>
+	</header>
 
-
-	<script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-
-	<div class="container">
-
-		<div class="row">
-			<div class="span6">
+	<main class="wrap">
+		<div class="hero">
+			<div>
+				<p class="kicker">Georgia Tech CSE · Google DeepMind</p>
 				<h1>Bo Dai</h1>
-			</div>
-			<div class="span6">
-				<img src="images/cse-logo.jpg" style="float:right;" width="50%" alt="Georgia Tech">
-				<br>
-			</div>
-			<div class="span6">
-				<img src="images/google-deep-mind-logo.jpg" style="float:right;" width="50%" alt="Google DeepMind">
-			</div>
-		</div>
-
-		<div class="navbar">
-			<div class="navbar-inner">
-				<div class="container">
-					<ul class="nav">
-						<li class="active">
-							<a href="index.html">Home</a>
-						</li>
-						<li>
-							<a href="publications.html">Talks &amp; Publications</a>
-						</li>
-						<li>
-							<a href="teaching.html">Teaching</a>
-						</li>
-						<li>
-							<a href="awards.html">Selected Awards</a>
-						</li>
-						<li>
-							<a href="team.html">Team</a>
-						</li>
-						<li>
-							<a href="software.html">Software</a>
-						</li>
-					</ul>
+				<p class="role">Assistant Professor, School of Computational Science &amp; Engineering, Georgia Tech</p>
+				<p class="email">bodai <span class="dim">[at]</span> cc.gatech.edu</p>
+				<div class="bio">
+					<p>I am an assistant professor at <a href="https://cse.gatech.edu/">CSE in Georgia Tech</a>. I am also affiliated with <a href="https://ai.google/research/teams/brain">Google DeepMind</a> as a senior staff research scientist.</p>
+					<p>My principal research interest lies on <span class="hl">Agent AI</span> upon <span class="hl">Generative Models</span>, <span class="hl">Representation</span>, and <span class="hl">Reinforcement Learning</span>, aiming for creating agents with decision-making and planning ability through modeling the world.</p>
 				</div>
 			</div>
-		</div>
-
-
-                <!-- <div class="row">
-			<div class="span10 offset2">
-				<h3>Biography</h3>
-			</div>
-		</div> -->
-		
-		<div class="row">
-			<div class="span2">
-				<br>
-				<br>
-				<br>
-				<br>
-				<br>
-				<br>
-				<p class="text-right"><b>Address</b></p>
-				<p class="text-right"><b>Contact</b></p> 
-				<br>
-				<p class="text-right"><b>Twitter</b></p> 
-			</div>
-			<div class="span7">
-				<p align="justify"> I am an assistant professor at <a href="https://cse.gatech.edu/">CSE in Georgia Tech</a>. I am also affiliated with <a href="https://ai.google/research/teams/brain">Google DeepMind</a> as a senior staff research scientist. 
-				</p>
-				<p align="justify"> My principal research interest lies on <font color="#40E0D0"><b>Agent AI</b></font> upon <font color="#40E0D0"><b>Generative Models</b></font>, <font color="#40E0D0"><b>Representation</b></font>, and <font color="#40E0D0"><b>Reinforcement Learning</b></font>, aiming for creating agents with decision-making and planning ability through modeling the world. 
-				</p>
-				<!-- <p align="justify"> 
-					[ <a href="https://scholar.google.com/citations?user=TIKl_foAAAAJ&hl=en">Google Scholar</a> ]
-					[ <a href="https://twitter.com/daibond_alpha">Twitter</a> ]
-				</p> -->
-				<p align="justify">CODA E1342A, 756 W Peachtree St NW, Atlanta, GA 30308</p> 
-				<p align="justify"> 
-					<ul class="unstyled">
-						<li><font face="Courier">bodai at cc.gatech.edu</font>  &nbsp;&nbsp;  (for general academic work)</li>
-						<li><font face="Courier">bodai at google.com</font>  &nbsp;&nbsp;  (for Google related work)</li>
-					</ul>
-				</p>
-				<p align="justify"><a href="https://twitter.com/daibond_alpha">daibond_alpha</a></p>
-			</div>
-			<div class="span3">
-				<img src="images/bodai.jpg" style="float:right;" width="80%">
-			</div>
-		</div>
-
- 		<!-- <div class="row" id="contact">
-			<div class="span7 offset2">
-				<h3>Contact</h3>
-				<p align="justify">[Email] 
-					<ul class="unstyled">
-						<li><font face="Courier">bodai at cc.gatech.edu</font> (for general academic work)</li>
-						<li><font face="Courier">bodai at google.com</font> (for Google related work)</li>
-					</ul>
-				<p align="justify">[Twitter] <a href="https://twitter.com/daibond_alpha">daibond_alpha</a></p>
-			</div>
-		</div> -->
-
-		<div class="row" id="experiences">
-			<div class="span10 offset2">
-				<h3>Experiences</h3>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="span2">
-				<p class="text-right">Mar 2023 - NOW </p>
-			</div>
-			<div class="span10">
-				<p class="text-left">Assistant Professor, <a href="https://cse.gatech.edu/">School of Computational Science & Engineering, Georgia Tech</a></p>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="span2">
-				<p class="text-right">Sep 2018 - NOW </p>
-			</div>
-			<div class="span10">
-				<p class="text-left">Senior Staff Research Scientist, <a href="https://ai.google/research/teams/brain/">Google Brain</a></p>
-				<p class="text-left">Team Lead for Gemini MLE Agent, Data Analytics Agent with Decisive Model in BigQuery</p>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="span2">
-				<p class="text-right">Aug 2013 - Aug 2018 </p>
-			</div>
-			<div class="span10">
-				<p class="text-left">Ph.D., <a href="https://cse.gatech.edu/">School of Computational Science & Engineering, Georgia Tech</a></p>
-			</div>
-		</div>
-
-
-		<div class="row" id="services">
-			<div class="span10 offset2">
-				<h3>Services</h3>
-			</div>
-		</div>
-
-		<div class="row">
-<!-- 			<div class="span2">
-				<p class="text-right">Services </p>
-			</div>
- -->
-			<div class="span10 offset2">
-				<p> Action Editor of Transactions on Machine Learning Research (TMLR)</p>
-				<p> (Senior) Area Chair of top conferences for multiple years between 2019-Current: NeurIPS, ICML, ICLR, AISTATS</p>
-				<p> Co-organizer of <a href="https://ptaworkshop.github.io/">PTA: From Pretrained Representations to Acting Agents Workshop</a> at NeurIPS 2026 </p>
-				<p> Co-organizer of <a href="https://sites.harvard.edu/nsf-rl-workshop/"> NSF Workshop on Reinforcement Learning, 2025 </a> </p>
-				<p> Co-organizer of <a href="https://sites.google.com/corp/view/eancs/home">Workshop on Evaluations and Assessments of Neural Conversation Systems </a> at EMNLP 2021 </p>
-				<p> Co-organizer of Workshop on Reinforcement Learning at Google, 2021</p>
-				<p> Co-organizer of <a href="https://optrl2019.github.io/">Optimization Foundations of Reinforcement Learning Workshop</a> at NeurIPS 2019 </p>
-			</div>
-		</div>
-
-		<!-- <div class="row">
-				<div class="span2">
+			<aside class="side">
+				<img class="portrait" src="images/bodai.jpg" alt="Bo Dai">
+				<div class="icons">
+					<a href="mailto:bodai@cc.gatech.edu" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
+					<a href="https://scholar.google.com/citations?user=TIKl_foAAAAJ&amp;hl=en" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zm-6.82 9.9v3.6L12 20l6.82-3.5v-3.6L12 16.6l-6.82-3.7z"/></svg></a>
+					<a href="https://twitter.com/daibond_alpha" aria-label="Twitter" title="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3zm-1.08 16.2h1.7L7.4 4.7H5.58l11.09 14.5z"/></svg></a>
 				</div>
-	
-				<div class="span10">
-					<br>
-					<p class="text-left">The webpage template is kindly provided by
-						<a href="https://scholar.google.com/citations?user=v474hP4AAAAJ&hl=en">Nan Du</a>
-						and
-						<a href="http://pages.cs.wisc.edu/~yliang/">Yingyu Liang</a>
-					</p>
+				<div class="affil">
+					<img src="images/cse-logo.jpg" alt="Georgia Tech">
+					<img src="images/google-deep-mind-logo.jpg" alt="Google DeepMind">
 				</div>
-		</div> -->
-
-		<div class="row">
-			<div class="span4 offset4">
-			<script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=DAHkeDXm88JkrYqB8k2CQQsDuTfCac6hPK6rwavAHD0&cl=ffffff&w=a", style="float:center"></script>
-			<!--<a href="https://clustrmaps.com/site/1bvml"  style="width: 300px;"><img src="//www.clustrmaps.com/map_v2.png?d=DAHkeDXm88JkrYqB8k2CQQsDuTfCac6hPK6rwavAHD0&cl=ffffff" /></a>-->
-			</div>
+			</aside>
 		</div>
+
+		<section id="contact">
+			<h2>Contact</h2>
+			<dl class="facts">
+				<dt>Address</dt>
+				<dd>CODA E1342A, 756 W Peachtree St NW, Atlanta, GA 30308</dd>
+				<dt>Email</dt>
+				<dd><span class="mono">bodai at cc.gatech.edu</span> <span class="note">(for general academic work)</span><br><span class="mono">bodai at google.com</span> <span class="note">(for Google related work)</span></dd>
+				<dt>Twitter</dt>
+				<dd><a href="https://twitter.com/daibond_alpha">daibond_alpha</a></dd>
+			</dl>
+		</section>
+
+		<section id="news">
+			<h2>News</h2>
+			<ul class="timeline">
+				<li><span class="when">Oct 2026</span><span class="what">Released <a href="https://stacx-lab.github.io/kinex/">Kinex</a>: One Agent for Any Robot.</span></li>
+				<li><span class="when">Sep 2026</span><span class="what">ROBOTIS Best Paper Award at the IROS 2026 workshop on <a href="https://compositional-robotics.github.io/">Compositional and Modular Learning in the Era of Scaling Robotics</a>.</span></li>
+				<li><span class="when">Sep 2026</span><span class="what">Released <a href="https://rle-bench.github.io/">RLE-Bench</a>: A Qualifying Exam for Coding Agents as Robot Learning Engineers.</span></li>
+				<li><span class="when">Jul 2026</span><span class="what">Invited talk at OSU: Spectral Ghost in Representation Learning: from Component Analysis to Self-Supervised Learning [<a href="talks/spec-repr/slides.html">Slides</a>] [<a href="https://arxiv.org/abs/2601.20154">Paper</a>].</span></li>
+				<li><span class="when">Jul 2026</span><span class="what">Released <a href="https://stacx.github.io/web/">STACX</a>, an open-source modular infrastructure for end-to-end agentic RL.</span></li>
+				<li><span class="when">Jun 2026</span><span class="what"><a href="https://arxiv.org/abs/2606.08357">FReDA</a> released on arXiv: forward-free diffusion language models with BPTT-free looped refinement.</span></li>
+				<li><span class="when">May 2026</span><span class="what">Released <a href="https://arxiv.org/abs/2605.12913">Agent DAgger</a>, combining on-policy experience with dense expert feedback to train long-horizon coding agents.</span></li>
+				<li><span class="when">May 2026</span><span class="what">Tech Lead of the Gemini Frontier AI MLE Agent Strike team.</span></li>
+				<li><span class="when">May 2026</span><span class="what"><a href="https://cloud.google.com/blog/products/data-analytics/more-than-100x-faster-and-cheaper-llm-powered-sql-queries-with-proxy-models?e=48754805">LLM-powered AI query engine</a> on billions of rows with about 400x fewer tokens and 30–100x lower latency.</span></li>
+			</ul>
+		</section>
+
+		<section id="experiences">
+			<h2>Experiences</h2>
+			<ul class="timeline">
+				<li><span class="when">Mar 2023 – now</span><span class="what"><b>Assistant Professor</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
+				<li><span class="when">Sep 2018 – now</span><span class="what"><b>Senior Staff Research Scientist</b>, <a href="https://ai.google/research/teams/brain/">Google Brain</a><span class="sub">Team Lead for Gemini MLE Agent, Data Analytics Agent with Decisive Model in BigQuery</span></span></li>
+				<li><span class="when">Aug 2013 – Aug 2018</span><span class="what"><b>Ph.D.</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
+			</ul>
+		</section>
+
+		<section id="services">
+			<h2>Services</h2>
+			<ul class="items">
+				<li>Action Editor of Transactions on Machine Learning Research (TMLR)</li>
+				<li>(Senior) Area Chair of top conferences for multiple years between 2019-Current: NeurIPS, ICML, ICLR, AISTATS</li>
+				<li>Co-organizer of <a href="https://ptaworkshop.github.io/">PTA: From Pretrained Representations to Acting Agents Workshop</a> at NeurIPS 2026</li>
+				<li>Co-organizer of <a href="https://sites.harvard.edu/nsf-rl-workshop/"> NSF Workshop on Reinforcement Learning, 2025 </a></li>
+				<li>Co-organizer of <a href="https://sites.google.com/corp/view/eancs/home">Workshop on Evaluations and Assessments of Neural Conversation Systems </a> at EMNLP 2021</li>
+				<li>Co-organizer of Workshop on Reinforcement Learning at Google, 2021</li>
+				<li>Co-organizer of <a href="https://optrl2019.github.io/">Optimization Foundations of Reinforcement Learning Workshop</a> at NeurIPS 2019</li>
+			</ul>
+		</section>
+
+		<div class="map">
+			<script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=DAHkeDXm88JkrYqB8k2CQQsDuTfCac6hPK6rwavAHD0&cl=ffffff&w=a"></script>
+		</div>
+	</main>
+
+	<footer>
+		<div class="wrap">
+			<span>Bo Dai · Georgia Tech CSE</span>
+			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
+		</div>
+	</footer>
 	<script>
 		var sec = location.hash.slice(1);
 		var pages = {publications: "publications.html", talks: "publications.html#talks", teaching: "teaching.html",
 			awards: "awards.html", team: "team.html", software: "software.html"};
 		if (pages.hasOwnProperty(sec)) location.replace(pages[sec]);
 	</script>
+	<script>
+	document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+		var root = document.documentElement, next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try { localStorage.setItem('theme', next); } catch (e) {}
+	});
+</script>
 </body>
 
 </html>

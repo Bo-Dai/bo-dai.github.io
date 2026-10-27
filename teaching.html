@@ -1,77 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-	<meta charset="htf-8">
-
-	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-
-	<title> Bo Dai - Teaching </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bo Dai - Teaching</title>
+	<link rel="preload" href="fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="fonts/roboto-slab-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link href="css/site.css" rel="stylesheet">
+	<script>
+	try { var t = localStorage.getItem('theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+</script>
 </head>
 
 <body>
-
-
-	<script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-
-	<div class="container">
-
-		<div class="row">
-			<div class="span6">
-				<h1>Bo Dai</h1>
+	<header class="topbar">
+		<nav class="bar" aria-label="main">
+			<a class="brand" href="index.html">Bo Dai</a>
+			<div class="links">
+			<a href="index.html">Home</a>
+			<a href="publications.html">Talks &amp; Publications</a>
+			<a href="teaching.html" aria-current="page">Teaching</a>
+			<a href="awards.html">Awards</a>
+			<a href="team.html">Team</a>
+			<a href="software.html">Software</a>
 			</div>
-			<div class="span6">
-				<img src="images/cse-logo.jpg" style="float:right;" width="50%" alt="Georgia Tech">
-				<br>
-			</div>
-			<div class="span6">
-				<img src="images/google-deep-mind-logo.jpg" style="float:right;" width="50%" alt="Google DeepMind">
-			</div>
+			<button class="theme" type="button" data-theme-toggle aria-label="toggle theme" title="Toggle theme"><span class="sun">☀</span><span class="moon">☾</span></button>
+		</nav>
+	</header>
+
+	<main class="wrap">
+		<div class="page-head">
+			<p class="kicker">Teaching</p>
+			<h1>Teaching</h1>
 		</div>
 
-		<div class="navbar">
-			<div class="navbar-inner">
-				<div class="container">
-					<ul class="nav">
-						<li>
-							<a href="index.html">Home</a>
-						</li>
-						<li>
-							<a href="publications.html">Talks &amp; Publications</a>
-						</li>
-						<li class="active">
-							<a href="teaching.html">Teaching</a>
-						</li>
-						<li>
-							<a href="awards.html">Selected Awards</a>
-						</li>
-						<li>
-							<a href="team.html">Team</a>
-						</li>
-						<li>
-							<a href="software.html">Software</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+		<section>
+			<ul class="items">
+				<li><a href="https://bo-dai.github.io/CX4240-spring2026/">CX 4240, Introduction to Computational Data Analysis</a><span class="meta">Spring 2026 · Georgia Tech</span></li>
+				<li><a href="https://bo-dai.github.io/CS4641-spring2025/">CS 4641, Machine Learning</a><span class="meta">Spring 2025 · Georgia Tech</span></li>
+				<li><a href="https://bo-dai.github.io/CSE6243-fall2024/">CSE 6243, Advanced Machine Learning</a><span class="meta">Fall 2024 · Georgia Tech</span></li>
+				<li><a href="https://bo-dai.github.io/CSE6243-fall2023/">CSE 6243, Advanced Machine Learning</a><span class="meta">Fall 2023 · Georgia Tech</span></li>
+				<li><a href="https://sites.google.com/corp/view/fmg-data-driven-control">Reinforcement Learning via Optimization Lens</a><span class="meta">Summer 2021 · ETH & EPFL</span></li>
+				<li>Reinforcement Learning via Optimization Lens<span class="meta">Fall 2020 · Google Brainiversity</span></li>
+				<li>CSE 6740, Machine Learning<span class="meta">Spring 2015/Fall 2016 · Georgia Tech</span></li>
+			</ul>
+		</section>
+	</main>
 
-		<div class="row">
-			<div class="span10 offset2">
-				<p> <a href="https://bo-dai.github.io/CX4240-spring2026/">CX 4240, Introduction to Computational Data Analysis</a>, Spring 2026, Georgia Tech</p> 
-				<p> <a href="https://bo-dai.github.io/CS4641-spring2025/">CS 4641, Machine Learning</a>, Spring 2025, Georgia Tech</p> 
-				<p> <a href="https://bo-dai.github.io/CSE6243-fall2024/">CSE 6243, Advanced Machine Learning</a>, Fall 2024, Georgia Tech</p> 
-				<p> <a href="https://bo-dai.github.io/CSE6243-fall2023/">CSE 6243, Advanced Machine Learning</a>, Fall 2023, Georgia Tech</p> 
-				<p> <a href="https://sites.google.com/corp/view/fmg-data-driven-control">Reinforcement Learning via Optimization Lens</a>, Summer 2021, ETH & EPFL </p>
-				<p> Reinforcement Learning via Optimization Lens, Fall 2020, Google Brainiversity</p>
-				<p> CSE 6740, Machine Learning, Spring 2015/Fall 2016, Georgia Tech</p>
-			</div>
+	<footer>
+		<div class="wrap">
+			<span>Bo Dai · Georgia Tech CSE</span>
+			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
 		</div>
+	</footer>
 
+	<script>
+	document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+		var root = document.documentElement, next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try { localStorage.setItem('theme', next); } catch (e) {}
+	});
+</script>
 </body>
 
 </html>

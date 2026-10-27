@@ -1,140 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-	<meta charset="htf-8">
-
-	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-
-	<title> Bo Dai - Team </title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bo Dai - Team</title>
+	<link rel="preload" href="fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="fonts/roboto-slab-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+	<link href="css/site.css" rel="stylesheet">
+	<script>
+	try { var t = localStorage.getItem('theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+</script>
 </head>
 
 <body>
-
-
-	<script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-
-	<div class="container">
-
-		<div class="row">
-			<div class="span6">
-				<h1>Bo Dai</h1>
+	<header class="topbar">
+		<nav class="bar" aria-label="main">
+			<a class="brand" href="index.html">Bo Dai</a>
+			<div class="links">
+			<a href="index.html">Home</a>
+			<a href="publications.html">Talks &amp; Publications</a>
+			<a href="teaching.html">Teaching</a>
+			<a href="awards.html">Awards</a>
+			<a href="team.html" aria-current="page">Team</a>
+			<a href="software.html">Software</a>
 			</div>
-			<div class="span6">
-				<img src="images/cse-logo.jpg" style="float:right;" width="50%" alt="Georgia Tech">
-				<br>
-			</div>
-			<div class="span6">
-				<img src="images/google-deep-mind-logo.jpg" style="float:right;" width="50%" alt="Google DeepMind">
-			</div>
+			<button class="theme" type="button" data-theme-toggle aria-label="toggle theme" title="Toggle theme"><span class="sun">☀</span><span class="moon">☾</span></button>
+		</nav>
+	</header>
+
+	<main class="wrap">
+		<div class="page-head">
+			<p class="kicker">Team</p>
+			<h1>Team</h1>
 		</div>
+		<p style="margin-top:14px">Members of <a href="https://stacx-lab.github.io/">STACX Lab</a> at Georgia Tech.</p>
 
-		<div class="navbar">
-			<div class="navbar-inner">
-				<div class="container">
-					<ul class="nav">
-						<li>
-							<a href="index.html">Home</a>
-						</li>
-						<li>
-							<a href="publications.html">Talks &amp; Publications</a>
-						</li>
-						<li>
-							<a href="teaching.html">Teaching</a>
-						</li>
-						<li>
-							<a href="awards.html">Selected Awards</a>
-						</li>
-						<li class="active">
-							<a href="team.html">Team</a>
-						</li>
-						<li>
-							<a href="software.html">Software</a>
-						</li>
-					</ul>
-				</div>
-			</div>
+		<section>
+			<h2>Current Students</h2>
+			<ul class="people">
+				<li><a class="name" href="https://haotiansun.tech/">Haotian Sun</a><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><a class="name" href="https://lichangh20.github.io/">Changhao Li</a><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><a class="name" href="https://rushi-q.github.io/">Rushi Qiang</a><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><a class="name" href="https://tianyyiii.github.io/">Tianyi Chen</a><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><a class="name" href="https://about.gaocx.io/">Chenxiao Gao</a><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><span class="name">Huijie Tang</span><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><span class="name">Yiting He</span><span class="role">Georgia Tech CSE PhD</span></li>
+				<li><span class="name">Yizhou Zhao</span><span class="role">Georgia Tech CSE PhD</span></li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Former Members</h2>
+			<ul class="people">
+				<li><a class="name" href="https://edwardchen.me/">Edward Chen</a><span class="role">Georgia Tech Mathematics Master</span><span class="now">1X Technologies</span></li>
+				<li><a class="name" href="https://uzairakbar.com/">Uzair Akbar</a><span class="role">Georgia Tech CS Master</span></li>
+				<li><a class="name" href="https://aarontrinh02.github.io/">Aaron Trinh</a><span class="role">Georgia Tech Undergraduate</span></li>
+				<li><a class="name" href="https://d-yitongli.github.io/">Yitong Li</a><span class="role">Georgia Tech CS Master</span><span class="now">ML Engineer at TikTok</span></li>
+				<li><a class="name" href="https://jinchengmei.github.io/">Jincheng Mei</a><span class="role">UAlberta PhD</span><span class="now">Research Scientist at Google DeepMind</span></li>
+				<li><a class="name" href="https://chenjun-x.github.io/">Chenjun Xiao</a><span class="role">UAlberta PhD</span><span class="now">Assistant Professor at CUHK, Shenzhen, and Researcher at Moonshot AI</span></li>
+				<li><a class="name" href="https://zhuangdizhu.github.io/">Zhuangdi Zhu</a><span class="role">MSU PhD</span><span class="now">Assistant Professor at George Mason University</span></li>
+				<li><a class="name" href="https://www.cs.utexas.edu/~tzren/">Tongzheng Ren</a><span class="role">UT Austin PhD</span><span class="now">Research Scientist at Google DeepMind</span></li>
+				<!-- <li><a class="name" href="https://tianjunz.github.io/">Tianjun Zhang</a><span class="role">UC Berkeley PhD</span></li> -->
+			</ul>
+		</section>
+	</main>
+
+	<footer>
+		<div class="wrap">
+			<span>Bo Dai · Georgia Tech CSE</span>
+			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
 		</div>
+	</footer>
 
-		<div class="row">
-			<div class="span10 offset2">
-				<h3><a href="https://stacx-lab.github.io/">STACX Lab</a></h3>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="span2">
-				<p class="text-right">Current Students</p>
-			</div>
-			<div class="span10">
-				<p>
-					<a href="https://haotiansun.tech/">Haotian Sun</a>, Georgia Tech CSE PhD
-				</p>
-				<p>
-					<a href="https://lichangh20.github.io/">Changhao Li</a>, Georgia Tech CSE PhD
-				</p>
-				<p>
-					<a href="https://rushi-q.github.io/">Rushi Qiang</a>, Georgia Tech CSE PhD
-				</p>
-				<p>
-					<a href="https://tianyyiii.github.io/">Tianyi Chen</a>, Georgia Tech CSE PhD
-				</p>
-				<p>
-					<a href="https://about.gaocx.io/">Chenxiao Gao</a>, Georgia Tech CSE PhD
-				</p>
-				<p>
-					Huijie Tang, Georgia Tech CSE PhD
-				</p>
-				<p>
-					Yiting He, Georgia Tech CSE PhD
-				</p>
-				<p>
-					Yizhou Zhao, Georgia Tech CSE PhD
-				</p>
-			</div>
-		</div>
-		
-		<div class="row">
-			<div class="span2">
-				<p class="text-right">Former Members</p>
-			</div>
-			<div class="span10">
-				<p>
-					<a href="https://edwardchen.me/">Edward Chen</a>, Georgia Tech Mathematics Master, 1X Technologies
-				</p>
-				<p>
-					<a href="https://uzairakbar.com/">Uzair Akbar</a>, Georgia Tech CS Master
-				</p>
-				<p>
-					<a href="https://aarontrinh02.github.io/">Aaron Trinh</a>, Georgia Tech Undergraduate
-				</p>
-				<p>
-					<a href="https://d-yitongli.github.io/">Yitong Li</a>, Georgia Tech CS Master, ML Engineer at TikTok
-				</p>
-				<p>
-					<a href="https://jinchengmei.github.io/">Jincheng Mei</a>, UAlberta PhD, Research Scientist at Google DeepMind
-				</p>
-				<p>
-					<a href="https://chenjun-x.github.io/">Chenjun Xiao</a>, UAlberta PhD, Assistant Professor at CUHK, Shenzhen, and Researcher at Moonshot AI
-				</p>
-				<p>
-					<a href="https://zhuangdizhu.github.io/">Zhuangdi Zhu</a>, MSU PhD, Assistant Professor at George Mason University
-				</p>
-				<p>
-					<a href="https://www.cs.utexas.edu/~tzren/">Tongzheng Ren</a>, UT Austin PhD, Research Scientist at Google DeepMind
-				</p>
-<!-- 				<p>
-					<a href="https://tianjunz.github.io/">Tianjun Zhang</a>, UC Berkeley PhD
-				</p> -->
-			</div>
-		</div>
-
-		
-
+	<script>
+	document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+		var root = document.documentElement, next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try { localStorage.setItem('theme', next); } catch (e) {}
+	});
+</script>
 </body>
 
 </html>
