@@ -251,3 +251,6 @@ footer a { color: var(--ink-3); }
 .lab-title img { width: 1.05em; height: 1.05em; }
 .lab-title .night, :root[data-theme='dark'] .lab-title .day { display: none; }
 :root[data-theme='dark'] .lab-title .night { display: inline; }
+.lab-inline { gap: .25em; vertical-align: -0.12em; font-weight: 700; }
+.lab-inline img { width: 1em; height: 1em; }
+.lab-inline:hover { text-decoration: underline; text-underline-offset: 3px; }
