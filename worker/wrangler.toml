@@ -1,0 +1,7 @@
+name = "bodai-visits"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+[[kv_namespaces]]
+binding = "VISITS"
+id = "18b405d6fe3a487f94492828b02d9abd"

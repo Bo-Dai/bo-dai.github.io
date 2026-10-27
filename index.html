@@ -7,7 +7,7 @@
 	<title>Bo Dai</title>
 	<link rel="preload" href="fonts/lato-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 	<link rel="preload" href="fonts/roboto-slab-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
-	<link href="css/site.css?v=2" rel="stylesheet">
+	<link href="css/site.css?v=4" rel="stylesheet">
 	<script>
 	try { var t = localStorage.getItem('theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
 </script>
@@ -40,6 +40,17 @@
 					<p>I am an assistant professor at <a href="https://cse.gatech.edu/">CSE in Georgia Tech</a>. I am also affiliated with <a href="https://ai.google/research/teams/brain">Google DeepMind</a> as a senior staff research scientist.</p>
 					<p>My principal research interest lies on <span class="hl">Agent AI</span> upon <span class="hl">Generative Models</span>, <span class="hl">Representation</span>, and <span class="hl">Reinforcement Learning</span>, aiming for creating agents with decision-making and planning ability through modeling the world.</p>
 				</div>
+				<section id="contact" class="hero-contact">
+					<h2>Contact</h2>
+					<dl class="facts">
+						<dt>Address</dt>
+						<dd>CODA E1342A, 756 W Peachtree St NW, Atlanta, GA 30308</dd>
+						<dt>Email</dt>
+						<dd><span class="mono">bodai at cc.gatech.edu</span> <span class="note">(for general academic work)</span><br><span class="mono">bodai at google.com</span> <span class="note">(for Google related work)</span></dd>
+						<dt>Twitter</dt>
+						<dd><a href="https://twitter.com/daibond_alpha">daibond_alpha</a></dd>
+					</dl>
+				</section>
 			</div>
 			<aside class="side">
 				<img class="portrait" src="images/bodai.jpg" alt="Bo Dai">
@@ -52,20 +63,9 @@
 					<img src="images/cse-logo.jpg" alt="Georgia Tech">
 					<img src="images/google-deep-mind-logo.jpg" alt="Google DeepMind">
 				</div>
+				<div class="visitor-globe side-globe" id="visitor-globe" data-stats="https://bodai-visits.bo-dai.workers.dev" aria-label="Visitors"></div>
 			</aside>
 		</div>
-
-		<section id="contact">
-			<h2>Contact</h2>
-			<dl class="facts">
-				<dt>Address</dt>
-				<dd>CODA E1342A, 756 W Peachtree St NW, Atlanta, GA 30308</dd>
-				<dt>Email</dt>
-				<dd><span class="mono">bodai at cc.gatech.edu</span> <span class="note">(for general academic work)</span><br><span class="mono">bodai at google.com</span> <span class="note">(for Google related work)</span></dd>
-				<dt>Twitter</dt>
-				<dd><a href="https://twitter.com/daibond_alpha">daibond_alpha</a></dd>
-			</dl>
-		</section>
 
 		<section id="experiences">
 			<h2>Experiences</h2>
@@ -106,9 +106,6 @@
 			</ul>
 		</section>
 
-		<div class="map">
-			<script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=DAHkeDXm88JkrYqB8k2CQQsDuTfCac6hPK6rwavAHD0&cl=ffffff&w=a"></script>
-		</div>
 	</main>
 
 	<footer>
@@ -117,6 +114,8 @@
 			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
 		</div>
 	</footer>
+	<script src="js/globe-land.js"></script>
+	<script src="js/globe.js"></script>
 	<script>
 		(function () {
 			// Show four news items and scroll the rest; re-measure once fonts load and on resize.
