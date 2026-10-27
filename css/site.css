@@ -154,6 +154,18 @@ b, strong { color: var(--ink); }
 .timeline .sub { display: block; font-size: 14.5px; color: var(--ink-3); }
 @media (max-width: 600px) { .timeline li { grid-template-columns: 1fr; gap: 2px; } }
 
+/* news: the first four items show, the rest scroll; the bottom edge fades out */
+.news-scroll {
+  max-height: 17rem; overflow-y: auto; padding-right: 6px;
+  scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent 100%);
+}
+.news-scroll.all { max-height: none; -webkit-mask-image: none; mask-image: none; }
+.news-scroll .news { padding-bottom: 1.5rem; }
+.timeline.news li { grid-template-columns: 90px 1fr; padding: 9px 0; }
+@media (max-width: 600px) { .timeline.news li { grid-template-columns: 1fr; } }
+
 /* plain item lists (services, teaching, awards) */
 .items { list-style: none; margin: 0; padding: 0; }
 .items li { padding: 10px 0 10px 18px; position: relative; color: var(--ink-2); border-bottom: 1px solid var(--rule); }

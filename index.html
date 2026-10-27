@@ -34,7 +34,7 @@
 			<div>
 				<p class="kicker">Georgia Tech CSE · Google DeepMind</p>
 				<h1>Bo Dai</h1>
-				<p class="role">Assistant Professor, School of Computational Science &amp; Engineering, Georgia Tech</p>
+				<p class="role">Assistant Professor, School of Computational Science &amp; Engineering, Georgia Tech<br>Senior Staff Research Scientist, Google DeepMind</p>
 				<p class="email">bodai <span class="dim">[at]</span> cc.gatech.edu</p>
 				<div class="bio">
 					<p>I am an assistant professor at <a href="https://cse.gatech.edu/">CSE in Georgia Tech</a>. I am also affiliated with <a href="https://ai.google/research/teams/brain">Google DeepMind</a> as a senior staff research scientist.</p>
@@ -67,9 +67,19 @@
 			</dl>
 		</section>
 
+		<section id="experiences">
+			<h2>Experiences</h2>
+			<ul class="timeline">
+				<li><span class="when">Mar 2023 – now</span><span class="what"><b>Assistant Professor</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
+				<li><span class="when">Sep 2018 – now</span><span class="what"><b>Senior Staff Research Scientist</b>, <a href="https://ai.google/research/teams/brain/">Google Brain</a><span class="sub">Team Lead for Gemini <a href="https://arxiv.org/abs/2505.07782">MLE Agent</a>, <a href="https://arxiv.org/abs/2407.09522">Data Analytics Agent</a> with <a href="https://arxiv.org/pdf/2505.21439">Decisive Model</a> in BigQuery</span></span></li>
+				<li><span class="when">Aug 2013 – Aug 2018</span><span class="what"><b>Ph.D.</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
+			</ul>
+		</section>
+
 		<section id="news">
 			<h2>News</h2>
-			<ul class="timeline">
+			<div class="news-scroll" id="news-scroll">
+			<ul class="timeline news">
 				<li><span class="when">Oct 2026</span><span class="what">Released <a href="https://stacx-lab.github.io/kinex/">Kinex</a>: One Agent for Any Robot.</span></li>
 				<li><span class="when">Sep 2026</span><span class="what">ROBOTIS Best Paper Award at the IROS 2026 workshop on <a href="https://compositional-robotics.github.io/">Compositional and Modular Learning in the Era of Scaling Robotics</a>.</span></li>
 				<li><span class="when">Sep 2026</span><span class="what">Released <a href="https://rle-bench.github.io/">RLE-Bench</a>: A Qualifying Exam for Coding Agents as Robot Learning Engineers.</span></li>
@@ -80,15 +90,7 @@
 				<li><span class="when">May 2026</span><span class="what">Tech Lead of the Gemini Frontier AI MLE Agent Strike team.</span></li>
 				<li><span class="when">May 2026</span><span class="what"><a href="https://cloud.google.com/blog/products/data-analytics/more-than-100x-faster-and-cheaper-llm-powered-sql-queries-with-proxy-models?e=48754805">LLM-powered AI query engine</a> on billions of rows with about 400x fewer tokens and 30–100x lower latency.</span></li>
 			</ul>
-		</section>
-
-		<section id="experiences">
-			<h2>Experiences</h2>
-			<ul class="timeline">
-				<li><span class="when">Mar 2023 – now</span><span class="what"><b>Assistant Professor</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
-				<li><span class="when">Sep 2018 – now</span><span class="what"><b>Senior Staff Research Scientist</b>, <a href="https://ai.google/research/teams/brain/">Google Brain</a><span class="sub">Team Lead for Gemini MLE Agent, Data Analytics Agent with Decisive Model in BigQuery</span></span></li>
-				<li><span class="when">Aug 2013 – Aug 2018</span><span class="what"><b>Ph.D.</b>, <a href="https://cse.gatech.edu/">School of Computational Science &amp; Engineering, Georgia Tech</a></span></li>
-			</ul>
+			</div>
 		</section>
 
 		<section id="services">
@@ -115,6 +117,13 @@
 			<span><a href="https://stacx-lab.github.io/">STACX Lab</a></span>
 		</div>
 	</footer>
+	<script>
+		(function () {
+			var box = document.getElementById('news-scroll'), items = box.querySelectorAll('li');
+			if (items.length > 4) box.style.maxHeight = (items[4].offsetTop - box.offsetTop + 28) + 'px';
+			else box.classList.add('all');
+		})();
+	</script>
 	<script>
 		var sec = location.hash.slice(1);
 		var pages = {publications: "publications.html", talks: "publications.html#talks", teaching: "teaching.html",
