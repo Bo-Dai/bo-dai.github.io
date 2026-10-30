@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spectral Representation-based Reinforcement Learning</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-muted:#fafafa;
+  --fg:#0f172a;
+  --fg-muted:#475569;
+  --fg-soft:#94a3b8;
+  --accent-a:#7c3aed;   /* violet */
+  --accent-b:#3b82f6;   /* blue  */
+  --accent-c:#06b6d4;   /* cyan  */
+  --rule:#e2e8f0;
+  --hi-bg:#faf5ff;
+  --hi-border:#ddd6fe;
+  --code:#f1f5f9;
+}
+
+.reveal{
+  font-family:'Source Serif 4','Charter','Iowan Old Style',Georgia,serif;
+  font-weight:400;
+  color:var(--fg);
+  background:var(--bg);
+  font-size:26px;
+  line-height:1.45;
+}
+.reveal .slides{ text-align:left; }
+.reveal .slides > section, .reveal .slides > section > section{ padding:0 !important; }
+.reveal section{ height:100%; }
+
+/* Headings */
+.reveal h1,.reveal h2,.reveal h3,.reveal h4{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  color:var(--fg);
+  font-weight:600;
+  letter-spacing:-0.015em;
+  margin:0 0 0.5em;
+  text-transform:none;
+}
+.reveal h1{ font-size:2.2em; line-height:1.15; }
+.reveal h2{ font-size:1.25em; line-height:1.2; margin-bottom:0.6em; }
+.reveal h3{ font-size:1.02em; color:var(--fg-muted); font-weight:500; }
+
+/* Layout primitives */
+.slide-pad{ padding:48px 72px 64px; height:100%; box-sizing:border-box; display:flex; flex-direction:column; }
+.eyebrow{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.58em; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--accent-a); font-weight:600; margin-bottom:10px;
+}
+.slide-title{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:1.5em; font-weight:600; color:var(--fg);
+  margin:0 0 18px; letter-spacing:-0.015em;
+}
+.slide-subtitle{ color:var(--fg-muted); font-size:0.9em; margin:-8px 0 22px; }
+.rule{ height:3px; width:64px; background:linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)); border-radius:3px; margin:0 0 22px; }
+
+/* Body text */
+.reveal p{ margin:0.4em 0; }
+.reveal ul, .reveal ol{ margin:0.2em 0 0.4em 1.1em; }
+.reveal li{ margin:0.28em 0; }
+.reveal li::marker{ color:var(--accent-a); }
+.reveal strong{ color:var(--fg); font-weight:600; }
+.reveal em{ color:var(--fg-muted); font-style:italic; }
+.small{ font-size:0.78em; color:var(--fg-muted); }
+.tiny{ font-size:0.65em; color:var(--fg-soft); }
+.muted{ color:var(--fg-muted); }
+
+/* Math */
+.reveal .katex{ font-size:1.0em; }
+.eq{
+  margin:14px auto;
+  padding:18px 22px;
+  background:var(--hi-bg);
+  border:1px solid var(--hi-border);
+  border-radius:8px;
+  text-align:center;
+}
+.eq.tight{ padding:10px 14px; margin:8px auto; }
+.eq-lbl{ font-family:'Inter',sans-serif; font-size:0.6em; color:var(--fg-muted); letter-spacing:0.04em; margin-top:6px; }
+.boxed{
+  display:inline-block;
+  padding:10px 18px;
+  border:2px solid transparent;
+  background:
+    linear-gradient(#fff,#fff) padding-box,
+    linear-gradient(90deg,var(--accent-a),var(--accent-b),var(--accent-c)) border-box;
+  border-radius:8px;
+}
+
+/* Title slide */
+.title-slide{
+  height:100%;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:64px 96px;
+  background:
+    radial-gradient(1200px 600px at -10% -20%, rgba(124,58,237,0.06), transparent 50%),
+    radial-gradient(900px 500px at 110% 120%, rgba(6,182,212,0.06), transparent 55%),
+    #ffffff;
+}
+.title-slide .title{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:1.9em; line-height:1.15; font-weight:700; color:var(--fg);
+  letter-spacing:-0.02em; margin:0 0 12px;
+}
+.title-slide .subtitle{
+  font-family:'Source Serif 4',serif; font-style:italic;
+  font-size:1.12em; color:var(--fg-muted); margin:0 0 36px;
+}
+.title-slide .authors{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.78em; color:var(--fg);
+  margin:0 0 8px; font-weight:500;
+}
+.title-slide .affils{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:0.6em; color:var(--fg-muted);
+}
+.title-slide .spectrum{
+  height:8px; width:280px; border-radius:8px;
+  background:linear-gradient(90deg,#7c3aed 0%,#4f46e5 25%,#3b82f6 50%,#06b6d4 75%,#10b981 100%);
+  margin:40px 0 28px;
+  box-shadow:0 2px 12px rgba(124,58,237,0.18);
+}
+.title-slide .meta{
+  margin-top:auto; font-family:'Inter',sans-serif; font-size:0.58em; color:var(--fg-soft);
+}
+
+/* Section divider */
+.section-divider{
+  height:100%;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:72px 110px;
+  background:
+    linear-gradient(135deg, rgba(124,58,237,0.05), rgba(6,182,212,0.04));
+}
+.section-divider .sec-num{
+  font-family:'Inter',sans-serif; font-weight:700;
+  font-size:6em; line-height:1;
+  background:linear-gradient(135deg,var(--accent-a),var(--accent-b),var(--accent-c));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  margin:0 0 8px;
+}
+.section-divider .sec-title{
+  font-family:'Inter',sans-serif; font-weight:600;
+  font-size:1.8em; color:var(--fg); letter-spacing:-0.02em; margin:0;
+}
+.section-divider .sec-blurb{
+  margin-top:18px; font-size:0.95em; color:var(--fg-muted); max-width:700px;
+}
+
+/* Callout */
+.callout{
+  border-left:3px solid var(--accent-a);
+  background:var(--hi-bg);
+  padding:10px 16px; margin:14px 0;
+  font-size:0.95em;
+}
+.callout .k{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:0.68em;
+  color:var(--accent-a); text-transform:uppercase; letter-spacing:0.08em;
+  margin-right:8px;
+}
+
+/* Two columns */
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+.three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+.card{ padding:14px 18px; background:var(--bg-muted); border:1px solid var(--rule); border-radius:8px; }
+.card h4{ font-family:'Inter',sans-serif; font-size:0.85em; margin:0 0 6px; color:var(--fg); }
+.card .small{ font-size:0.76em; }
+
+/* Taxonomy table */
+.tax{
+  width:100%; border-collapse:collapse; font-family:'Inter',sans-serif; font-size:0.68em;
+}
+.tax th, .tax td{ border:1px solid var(--rule); padding:10px 12px; text-align:left; vertical-align:top; }
+.tax th{ background:var(--bg-muted); font-weight:600; color:var(--fg); }
+.tax td code{ color:var(--accent-a); font-family:ui-monospace,'SF Mono',Menlo,monospace; }
+
+/* Footer */
+.footer{
+  position:absolute; left:48px; right:48px; bottom:18px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:'Inter',sans-serif; font-size:0.55em; color:var(--fg-soft);
+  pointer-events:none;
+}
+.footer .lhs{ letter-spacing:0.06em; }
+.footer .rhs{ letter-spacing:0.06em; }
+
+.reveal .progress{ color:var(--accent-a); }
+.reveal .controls{ color:var(--accent-a); }
+.reveal .slide-number{ background:transparent; color:var(--fg-soft); font-family:'Inter',sans-serif; }
+
+/* Helpers */
+.spacer-sm{ height:10px; } .spacer-md{ height:20px; } .spacer-lg{ height:32px; }
+.chip{
+  display:inline-block; padding:3px 10px; border-radius:999px;
+  font-family:'Inter',sans-serif; font-size:0.58em; letter-spacing:0.04em;
+  background:#eef2ff; color:#4338ca; margin:2px 4px 2px 0;
+}
+.chip.c2{ background:#ecfeff; color:#0e7490; }
+.chip.c3{ background:#fef3c7; color:#a16207; }
+.chip.c4{ background:#fce7f3; color:#be185d; }
+.chip.c5{ background:#ecfccb; color:#4d7c0f; }
+
+hr.soft{ border:none; border-top:1px solid var(--rule); margin:16px 0; }
+
+.legend{ font-family:'Inter',sans-serif; font-size:0.6em; color:var(--fg-muted); }
+.legend .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+
+.arrow-row{ display:flex; align-items:center; gap:14px; font-family:'Inter',sans-serif; font-size:0.8em; }
+.arrow{ color:var(--accent-a); font-weight:600; }
+
+kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em; color:var(--accent-a); }
+/* References / links */
+.refs li{ margin:0.5em 0; line-height:1.4; }
+.refs a, a.lnk{ color:var(--accent-a); text-decoration:none; border-bottom:1px solid var(--hi-border); }
+.r-stack > div{ width:100%; }
+
+/* Compact slides (equation-dense) */
+.compact .slide-title{ margin-bottom:12px; }
+.compact p{ margin:0.2em 0; }
+.compact .eq{ padding:10px 16px; margin:8px auto; }
+.compact .eq.tight{ padding:6px 12px; margin:5px auto; }
+.compact .callout{ margin:8px 0; padding:8px 14px; }
+
+/* Team grid */
+.team-grid{ flex:1; display:grid; grid-template-columns:repeat(6,1fr); gap:28px 18px; align-content:center; }
+.person{ text-align:center; font-family:'Inter',sans-serif; }
+.person img{ width:112px; height:112px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 10px; box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--hi-border); }
+.person .nm{ font-size:0.62em; font-weight:600; color:var(--fg); }
+.person .af{ font-size:0.5em; color:var(--fg-muted); line-height:1.3; margin-top:2px; }
+</style>
+</head>
+
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- 1. TITLE -->
+<!-- ============================================================ -->
+<section>
+  <div class="title-slide" style="position:relative">
+    <div class="spectrum"></div>
+    <div class="title">Spectral Representation-based Reinforcement Learning</div>
+    <div class="subtitle">Balancing modeling, exploration and planning via spectral representations</div>
+    <div class="authors" style="display:flex; align-items:center; gap:18px; font-size:1.2em">
+      <span>Bo Dai</span>
+      <img src="GTExtended_RGB.png" alt="Georgia Tech" style="height:2.4em; width:auto; opacity:0.95">
+    </div>
+    <div class="affils">Google DeepMind &amp; Georgia Tech</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. Team -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Team</div>
+    <div class="rule"></div>
+    <div class="slide-title">Collaborators</div>
+    <div class="team-grid">
+      <div class="person"><img src="figs/team/tongzheng_ren.png" alt="Tongzheng Ren"><div class="nm">Tongzheng Ren</div><div class="af">UT Austin Alumni</div></div>
+      <div class="person"><img src="figs/team/chenjun_xiao.png" alt="Chenjun Xiao"><div class="nm">Chenjun Xiao</div><div class="af">UAlberta</div></div>
+      <div class="person"><img src="figs/team/tianjun_zhang.png" alt="Tianjun Zhang"><div class="nm">Tianjun Zhang</div><div class="af">UC Berkeley</div></div>
+      <div class="person"><img src="figs/team/haitong_ma.png" alt="Haitong Ma"><div class="nm">Haitong Ma</div><div class="af">Harvard</div></div>
+      <div class="person"><img src="figs/team/zhaolin_ren.png" alt="Zhaolin Ren"><div class="nm">Zhaolin Ren</div><div class="af">Harvard</div></div>
+      <div class="person"><img src="figs/team/chenxiao_gao.png" alt="Chenxiao Gao"><div class="nm">Chenxiao Gao</div><div class="af">Georgia Tech</div></div>
+      <div class="person"><img src="figs/team/lisa_lee.png" alt="Lisa Lee"><div class="nm">Lisa Lee</div><div class="af">Google DeepMind</div></div>
+      <div class="person"><img src="figs/team/sherry_yang.png" alt="Sherry Yang"><div class="nm">Sherry Yang</div><div class="af">Google DeepMind &amp; NYU</div></div>
+      <div class="person"><img src="figs/team/sujay_sanghavi.png" alt="Sujay Sanghavi"><div class="nm">Sujay Sanghavi</div><div class="af">UT Austin</div></div>
+      <div class="person"><img src="figs/team/na_li.png" alt="Na Li"><div class="nm">Na Li</div><div class="af">Harvard</div></div>
+      <div class="person"><img src="figs/team/csaba_szepesvari.png" alt="Csaba Szepesvári"><div class="nm">Csaba Szepesvári</div><div class="af">Google DeepMind &amp; UAlberta</div></div>
+      <div class="person"><img src="figs/team/dale_schuurmans.png" alt="Dale Schuurmans"><div class="nm">Dale Schuurmans</div><div class="af">Google DeepMind &amp; UAlberta</div></div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Team · 2</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. Outline -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Outline</div>
+    <div class="rule"></div>
+    <div class="slide-title">Roadmap</div>
+    <div style="display:flex; flex-direction:column; gap:16px; margin-top:10px">
+      <div class="card" style="border-left:4px solid var(--accent-a)">
+        <h4>1 &nbsp;·&nbsp; Dilemma in RL</h4>
+        <div class="small">Difficulties in model-free and model-based RL (world models).</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-b)">
+        <h4>2 &nbsp;·&nbsp; An inspiration from representation for control</h4>
+        <div class="small">Provable and practical stochastic nonlinear control.</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-c)">
+        <h4>3 &nbsp;·&nbsp; Coherent solution: RL with linear representation</h4>
+        <div class="small">Linear representation for MDPs.</div>
+      </div>
+      <div class="card" style="border-left:4px solid #10b981">
+        <h4>4 &nbsp;·&nbsp; Beyond states: POMDPs, videos and the real world</h4>
+        <div class="small">Linear representation for POMDPs, foundation-model encoders, video-based RL.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Outline · 3</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 1 — Dilemma -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Dilemma in Reinforcement Learning</div>
+    <div class="sec-blurb">Model-free and model-based RL each win on some axes and lose on others — modeling, exploration, planning.</div>
+  </div>
+</section>
+
+<!-- Power of RL -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Motivation</div>
+    <div class="rule"></div>
+    <div class="slide-title">The power of reinforcement learning</div>
+    <div class="two-col" style="flex:1; align-items:center">
+      <div style="text-align:center">
+        <img src="figs/alphago.png" alt="AlphaGo vs Lee Sedol" style="max-height:380px; max-width:100%; border-radius:8px; border:1px solid var(--rule)">
+        <div class="legend" style="margin-top:10px">Games — AlphaGo vs. Lee Sedol</div>
+      </div>
+      <div style="text-align:center">
+        <img src="figs/selfdriving.png" alt="Self-driving" style="max-height:380px; max-width:100%; border-radius:8px">
+        <div class="legend" style="margin-top:10px">Control — autonomous driving, robotics</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Motivation · 5</span></div>
+</section>
+
+<!-- MDP -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Background</div>
+    <div class="rule"></div>
+    <div class="slide-title">Markov Decision Processes (MDPs)</div>
+    <div style="display:grid; grid-template-columns:1fr 1.15fr; gap:30px">
+      <div>
+        <p>\(\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, r, T, \mu, H/\gamma \rangle\)</p>
+        <ul>
+          <li>State space: \(\mathcal{S}\)</li>
+          <li>Action space: \(\mathcal{A}\)</li>
+          <li>Reward: \(r:\mathcal{S}\times\mathcal{A}\to\mathbb{R}\)</li>
+          <li>Transition: \(T:\mathcal{S}\times\mathcal{A}\to\Delta(\mathcal{S})\)</li>
+          <li>Initial distribution: \(\mu\)</li>
+          <li>Policy: \(\pi(\cdot|s):\mathcal{S}\to\Delta(\mathcal{A})\)</li>
+        </ul>
+      </div>
+      <div>
+        <div class="eq tight">\[ V^\pi(s) := \mathbb{E}_{T,\pi}\Bigl[\textstyle\sum_{t=0}^{\infty}\gamma^t r(s_t,a_t)\,\Big|\,s_0=s\Bigr] \]</div>
+        <div class="eq tight">\[ Q^\pi(s,a) := \mathbb{E}_{T,\pi}\Bigl[\textstyle\sum_{t=0}^{\infty}\gamma^t r(s_t,a_t)\,\Big|\,s_0=s,a_0=a\Bigr] \]</div>
+        <p class="small" style="margin-top:6px">Finite-horizon: \(V_h^\pi, Q_h^\pi\) with \(\sum_{t=h}^{H-1}\) instead.</p>
+        <div class="eq fragment fade-in">\[ \max_\pi\; J(\pi) = \mathbb{E}_{\mu(s)}\bigl[V^\pi(s)\bigr] \]<div class="eq-lbl">the RL objective</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Background · 6</span></div>
+</section>
+
+<!-- Q-learning -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Model-free RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">(Deep) Q-learning</div>
+    <p>Dynamic programming via the Bellman recursion:</p>
+    <div class="eq">\[ Q(s,a) = R(s,a) + \gamma \sum_{s'} T(s'|s,a)\,\max_{a'} Q(s',a') \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>TD update</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ Q_t(s,a) = Q_{t-1}(s,a) + \alpha\Bigl(R(s,a) + \gamma\max_{a'}Q(s',a') - Q_{t-1}(s,a)\Bigr) \]</div>
+    <p class="fragment fade-in" data-fragment-index="2"><strong>Deep version</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="2">\[ \theta_t = \theta_{t-1} + \alpha\Bigl(R(s,a) + \gamma\max_{a'}Q_{t-1}(s',a') - Q_{t-1}(s,a)\Bigr)\nabla_\theta Q(s,a) \]</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-free · 7</span></div>
+</section>
+
+<!-- Policy gradient -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Model-free RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Policy gradient</div>
+    <p>Direct policy optimization:</p>
+    <div class="eq tight">\[ J(\pi_\theta) = \sum_{s} d^{\pi_\theta}(s)V^{\pi_\theta}(s) = \sum_s d^{\pi_\theta}(s)\sum_a \pi_\theta(a|s)\,Q^{\pi_\theta}(s,a) \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>Policy gradient</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \nabla_\theta J(\theta) = \sum_s d^\pi(s)\sum_a Q^\pi(s,a)\,\pi_\theta(a|s)\nabla_\theta\log\pi_\theta(a|s) = \mathbb{E}_{T,\pi}\bigl[Q^\pi(s,a)\nabla_\theta\log\pi_\theta(a|s)\bigr] \]</div>
+    <p class="fragment fade-in" data-fragment-index="2"><strong>PG update</strong> <span class="muted small">&nbsp;(→ natural PG, soft actor-critic, …)</span></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="2">\[ \theta_t = \theta_{t-1} + \alpha\,\mathbb{E}_{T,\pi}\bigl[Q^\pi(s,a)\nabla_\theta\log\pi_\theta(a|s)\bigr] \]</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-free · 8</span></div>
+</section>
+
+<!-- Model-free pros/cons -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Model-free RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Model-free RL: pros &amp; cons</div>
+    <div class="two-col">
+      <div class="card" style="border-left:4px solid #10b981">
+        <h4 style="color:#047857">Pros</h4>
+        <ul class="small">
+          <li><strong>Modeling:</strong> easy to combine with function approximators (deep nets) and gradient-based learning.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid #dc2626">
+        <h4 style="color:#b91c1c">Cons</h4>
+        <ul class="small">
+          <li><strong>Exploration:</strong> hard to capture uncertainty with arbitrary nonlinear functions.</li>
+          <li><strong>Planning:</strong> no global-convergence guarantee for the optimal policy with general nonlinear functions.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-free · 9</span></div>
+</section>
+
+<!-- Model-based loop -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Model-based RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">The model-based RL loop</div>
+    <div style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:34px; align-items:center">
+      <div style="text-align:center">
+        <svg viewBox="0 0 320 300" width="100%" style="max-width:340px">
+          <defs>
+            <marker id="ahm" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7c3aed"/></marker>
+          </defs>
+          <rect x="85"  y="10"  width="150" height="52" rx="10" fill="#faf5ff" stroke="#7c3aed"/>
+          <text x="160" y="42" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#0f172a">Collect data</text>
+          <rect x="190" y="200" width="125" height="52" rx="10" fill="#eff6ff" stroke="#3b82f6"/>
+          <text x="252" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#0f172a">Estimate</text>
+          <text x="252" y="242" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#0f172a">model &amp; reward</text>
+          <rect x="5"   y="200" width="125" height="52" rx="10" fill="#ecfeff" stroke="#06b6d4"/>
+          <text x="67"  y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#0f172a">Plan / MPC</text>
+          <text x="67"  y="242" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#0f172a">on learned model</text>
+          <path d="M235,50 Q290,110 262,195" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#ahm)"/>
+          <path d="M188,232 L136,232" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#ahm)"/>
+          <path d="M58,197 Q30,110 82,52" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#ahm)"/>
+        </svg>
+      </div>
+      <div>
+        <p>Three instantiations of the same loop — differing only in the <strong>model class</strong>:</p>
+        <div class="card" style="margin:10px 0"><h4>Generic MBRL</h4><div class="small">Estimate the dynamics model and reward; model predictive control on the learned model.</div></div>
+        <div class="card" style="margin:10px 0"><h4>LQR</h4><div class="small">Estimate a <strong>linear</strong> dynamics model and <strong>quadratic</strong> reward; optimize the estimated LQR.</div></div>
+        <div class="card" style="margin:10px 0"><h4>Deep MBRL / world model</h4><div class="small">Estimate a <strong>deep world model</strong> and reward; MPC on the learned model.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-based · 10</span></div>
+</section>
+
+<!-- LQR -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Model-based RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Linear Quadratic Regulator</div>
+    <div class="eq">\[ \begin{aligned} \min_{u_t,x_t}\;&\mathbb{E}\Bigl[\tfrac12\textstyle\sum_{t=0}^{N}\bigl\{x_t^\top Q x_t + u_t^\top R u_t\bigr\} + \tfrac12 x_{N+1}^\top S x_{N+1}\Bigr] \\ \text{s.t.}\;& x_{t+1} = A x_t + B u_t + e_t,\quad t=0,1,\dots,N \end{aligned} \]</div>
+    <p class="muted" style="text-align:center">With a <em>given</em> model, we have efficient solutions &amp; elegant analysis.</p>
+    <div class="two-col" style="margin-top:14px">
+      <div class="card" style="border-left:4px solid #10b981">
+        <h4 style="color:#047857">Pros</h4>
+        <ul class="small">
+          <li><strong>Exploration:</strong> theoretically rigorous and computationally efficient uncertainty estimation.</li>
+          <li><strong>Planning:</strong> elegant planner with global-convergence guarantee.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid #dc2626">
+        <h4 style="color:#b91c1c">Cons</h4>
+        <ul class="small">
+          <li><strong>Modeling:</strong> linear dynamics is too restrictive.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-based · 11</span></div>
+</section>
+
+<!-- Deep MBRL -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Model-based RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Deep model-based RL / world models</div>
+    <div>
+      <span class="chip">ME-TRPO</span>
+      <span class="chip">MB-MF</span>
+      <span class="chip">PETS-RS / PETS-CEM</span>
+      <span class="chip c2">DINO-WM: DINO as a foundation for video world models</span>
+    </div>
+    <div class="two-col" style="margin-top:22px">
+      <div class="card" style="border-left:4px solid #10b981">
+        <h4 style="color:#047857">Pros</h4>
+        <ul class="small">
+          <li><strong>Modeling:</strong> exploits deep models for better approximation.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid #dc2626">
+        <h4 style="color:#b91c1c">Cons</h4>
+        <ul class="small">
+          <li><strong>Exploration:</strong> hard to capture uncertainty with arbitrary nonlinear functions.</li>
+          <li><strong>Planning:</strong> difficult to control with a nonlinear dynamics model.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Model-based · 12</span></div>
+</section>
+
+<!-- Dilemma triangle -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Dilemma</div>
+    <div class="rule"></div>
+    <div class="slide-title">The impossible triangle: modeling, exploration, planning</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:center">
+      <div style="text-align:center">
+        <svg viewBox="-30 0 400 290" width="100%" style="max-width:360px">
+          <polygon points="170,30 30,255 310,255" fill="rgba(124,58,237,0.06)" stroke="#7c3aed" stroke-width="1.6"/>
+          <circle cx="170" cy="30" r="7" fill="#7c3aed"/>
+          <circle cx="30" cy="255" r="7" fill="#3b82f6"/>
+          <circle cx="310" cy="255" r="7" fill="#06b6d4"/>
+          <text x="170" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0f172a">Modeling</text>
+          <text x="30" y="282" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0f172a">Exploration</text>
+          <text x="310" y="282" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0f172a">Planning</text>
+          <text x="170" y="185" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#dc2626" font-weight="600">pick two?</text>
+        </svg>
+      </div>
+      <div>
+        <table class="tax">
+          <tr><th></th><th>Modeling</th><th>Exploration</th><th>Planning</th></tr>
+          <tr><td>Model-free (deep)</td><td>✓</td><td>✗</td><td>✗</td></tr>
+          <tr><td>LQR</td><td>✗</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Deep MBRL / WM</td><td>✓</td><td>✗</td><td>✗</td></tr>
+          <tr class="fragment fade-in" data-fragment-index="1"><td><strong>Spectral Rep. RL</strong></td><td>✓</td><td>✓</td><td>✓</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="boxed" style="margin-top:26px; font-size:1.02em">
+      A <strong>practical</strong> algorithm with <strong>rigorous theoretical guarantee</strong> that balances all three?
+      <span class="fragment fade-in" data-fragment-index="1">&nbsp;→ <strong style="color:var(--accent-a)">Spectral Representation-based Reinforcement Learning</strong></span>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Dilemma · 13</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2 — Representation for control -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">2</div>
+    <div class="sec-title">Representation View for Provable Control</div>
+    <div class="sec-blurb">Stochastic nonlinear control becomes <em>linear</em> in the right feature space.</div>
+  </div>
+</section>
+
+<!-- Stochastic nonlinear control -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Control</div>
+    <div class="rule"></div>
+    <div class="slide-title">Stochastic nonlinear control as an MDP</div>
+    <p><strong>Stochastic nonlinear control</strong></p>
+    <div class="eq tight">\[ \min_\pi\;\mathbb{E}_\pi\Bigl[\textstyle\sum_{h=1}^{H} r(s_h,a_h)\Bigr]\quad \text{s.t.}\;\; s_{h+1} = f(s_h,a_h) + \epsilon_h,\;\; \epsilon_h\sim\mathcal{N}(0,\sigma^2 I) \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>MDP reformulation</strong> &nbsp;\(\mathcal{M} = \langle\mathcal{S},\mathcal{A},r,T,\mu,H\rangle\)</p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ T(s'|s,a) \;\propto\; \exp\Bigl(-\frac{\|s'-f(s,a)\|_2^2}{2\sigma^2}\Bigr) \]</div>
+    <div class="eq fragment fade-in" data-fragment-index="2">\[ T(s'|s,a) \;\propto\; \bigl\langle \phi_\omega(f(s,a)),\, \phi_\omega(s') \bigr\rangle_{\mathcal{N}(0,\sigma^{-2}I)},\qquad \phi_\omega(x) = [\cos(\omega^\top x),\,\sin(\omega^\top x)] \]<div class="eq-lbl">Gaussian kernel = inner product of random Fourier features</div></div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 15</span></div>
+</section>
+
+<!-- Factorization -> linear Q -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Control</div>
+    <div class="rule"></div>
+    <div class="slide-title">Factorized dynamics ⇒ linear Q-functions</div>
+    <p>Transition and reward factorize with \(\phi(s,a)\):</p>
+    <div class="eq tight">\[ T(s'|s,a) = \langle \phi(s,a),\, \mu(s') \rangle,\qquad r(s,a) = \langle \phi(s,a),\, \theta_r\rangle \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>Integration representable:</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \int V^\pi_{h+1}(s_{h+1})\,T(s_{h+1}|s_h,a_h)\,ds_{h+1} = \Bigl\langle \phi(s_h,a_h),\, \int V^\pi_{h+1}(s_{h+1})\,\mu(s_{h+1})\,ds_{h+1}\Bigr\rangle_{\mathcal{H}} \]</div>
+    <p class="fragment fade-in" data-fragment-index="2"><strong>Q-function is linearly representable:</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="2" style="font-size:0.88em">\[ Q^\pi_h(s_h,a_h) = r(s,a) + \int T(s_{h+1}|s_h,a_h)V^\pi_{h+1}(s_{h+1})\,ds_{h+1} = \Bigl\langle \phi(s,a),\, \underbrace{\theta_r + \textstyle\int V^\pi_{h+1}\,\mu(s_{h+1})\,ds_{h+1}}_{w}\Bigr\rangle_{\mathcal{H}} \]</div>
+    <div class="callout fragment fade-in" data-fragment-index="3"><span class="k">Key</span>Not a special model, but a <strong>generic structure</strong>.</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 16</span></div>
+</section>
+
+<!-- Planning -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Control</div>
+    <div class="rule"></div>
+    <div class="slide-title">Planning for stochastic nonlinear control</div>
+    <p>Given an arbitrary bounded nonlinear \(f\), construct \(\phi(s,a)\) for value functions; then optimize by <strong>linear dynamic programming</strong> in the obtained space.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:12px">
+      <div class="card">
+        <h4>Least-squares policy evaluation</h4>
+        <div class="small">for \(t=0,\dots,T-1\):</div>
+        <div class="eq tight" style="font-size:0.85em">\[ \hat w_{k,t+1} = \arg\min_w \sum_{i}\Bigl(\phi(s_i,a_i)^\top w - r(s_i,a_i) - \gamma\,\phi(s_i',a_i')^\top \hat w_{k,t}\Bigr)^2 \]</div>
+      </div>
+      <div class="card">
+        <h4>Natural policy gradient for control</h4>
+        <div class="eq tight" style="font-size:0.85em">\[ \theta_{k+1} = \theta_k + \eta\,\hat w_{k,T} \]</div>
+        <div class="eq tight" style="font-size:0.85em">\[ \pi_{k+1}(a|s) \propto \exp\bigl(\phi(s,a)^\top\theta_{k+1}\bigr) \]</div>
+      </div>
+    </div>
+    <p class="tiny" style="margin-top:auto">Ren et al., CDC 2023 / IEEE TAC 2025</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 17</span></div>
+</section>
+
+<!-- Empirical SDEC -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Control · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/sdec_table.png" alt="SDEC results" style="max-width:100%">
+    </div>
+    <p class="small muted" style="text-align:center">SDEC (random-feature / Nyström spectral dynamics embedding) vs. iLQR, DKUC, energy-based, SAC.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 18</span></div>
+</section>
+
+<!-- Summary & gaps 1 -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Control · Summary</div>
+    <div class="rule"></div>
+    <div class="slide-title">Summary and gaps</div>
+    <div class="two-col">
+      <div class="card" style="border-left:4px solid var(--accent-a)">
+        <h4>Take-home</h4>
+        <ul class="small">
+          <li>Linearization makes nonlinear control potentially solvable.</li>
+          <li>Linearization bridges model-free and model-based RL.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-c)">
+        <h4>Gaps: theory vs. practice</h4>
+        <ul class="small">
+          <li>Infinite-dim linearization approximation.</li>
+          <li>Gaussian noise assumption.</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:26px; color:#dc2626; text-align:center">Could we do better and avoid these limitations?</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 19</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3 — Linear representation for MDP -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">3</div>
+    <div class="sec-title">RL with Linear Representation</div>
+    <div class="sec-blurb">Learn \(\phi(s,a)\) from data — tractably — then explore and plan linearly.</div>
+  </div>
+</section>
+
+<!-- Spectral view -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral view of MDPs</div>
+    <div class="eq tight">\[ T(s'|s,a) \propto \exp\Bigl(-\frac{\|s'-f(s,a)\|_2^2}{2\sigma^2}\Bigr) = \bigl\langle \phi_\omega(f(s,a)),\,\phi_\omega(s')\bigr\rangle_{\mathcal{N}(0,\sigma^{-2}I)} \]</div>
+    <p>Generalize: <strong>learn</strong> the factorization directly instead of fixing the kernel.</p>
+    <div class="eq">\[ \boxed{\;T(s'|s,a) = \langle\phi(s,a),\,\mu(s')\rangle,\qquad r(s,a) = \langle\phi(s,a),\,\theta_r\rangle\;} \]</div>
+    <p class="muted">The MLE of \(T\) under this constraint is intractable — four tractable surrogates follow.</p>
+    <div style="margin-top:8px">
+      <span class="chip">Contrastive (NCE)</span>
+      <span class="chip c2">SVD</span>
+      <span class="chip c3">Latent variable (ELBO)</span>
+      <span class="chip c4">Diffusion (score)</span>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 21</span></div>
+</section>
+
+<!-- NCE -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Contrastive</div>
+    <div class="rule"></div>
+    <div class="slide-title">Contrastive representation (NCE / CPC)</div>
+    <p>A contrastive loss as a tractable alternative to the MLE:</p>
+    <div class="eq tight">\[ (s,a,s')\sim\mathcal{D},\qquad s_l\sim p(s') \]</div>
+    <div class="eq">\[ \max_{\phi,\mu}\;\hat{\mathbb{E}}\Bigl[\langle\phi(s,a),\mu(s')\rangle - \log\sum_l \langle\phi(s,a),\mu(s_l')\rangle\Bigr] \]</div>
+    <p class="fragment fade-in">The objective leads to the solution</p>
+    <div class="eq tight fragment fade-in">\[ T(s'|s,a) = \bigl\langle \phi(s,a),\; {\color{#3b82f6}p(s')}\,\mu(s')\bigr\rangle \]</div>
+    <p class="tiny" style="margin-top:auto">Zhang, Ren et al., ICML 2022 (CTRL)</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 22</span></div>
+</section>
+
+<!-- SVD -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Linear MDP · SVD</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral decomposition representation (SVD)</div>
+    <p>SVD as a tractable alternative to the MLE:</p>
+    <div class="eq tight">\[ T(s'|s,a) = \langle\phi(s,a),\,{\color{#3b82f6}p(s')}\mu(s')\rangle \;\;\Rightarrow\;\; \frac{T(s',s,a)}{\sqrt{p(s,a)}\sqrt{p(s')}} = \sqrt{p(s,a)}\sqrt{p(s')}\,\phi(s,a)^\top\mu(s') \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>SVD decomposition</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \int\Bigl\|\frac{T(s',s,a)}{\sqrt{p(s,a)}\sqrt{p(s')}} - \sqrt{p(s,a)}\sqrt{p(s')}\,\phi(s,a)^\top\mu(s')\Bigr\|^2 d(s,a)\,ds' \]</div>
+    <div class="eq fragment fade-in" data-fragment-index="2">\[ \propto\; -2\,\mathbb{E}_{T(s',s,a)}\bigl[\phi(s,a)^\top\mu(s')\bigr] + \mathbb{E}_{p(s,a)p(s')}\bigl[(\phi(s,a)^\top\mu(s'))^2\bigr] \]<div class="eq-lbl">a simple, unbiased SGD objective</div></div>
+    <p class="tiny" style="margin-top:auto">Ren, Zhang et al., ICLR 2023 (SPEDE)</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 23</span></div>
+</section>
+
+<!-- LVM -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Linear MDP · Latent Variable</div>
+    <div class="rule"></div>
+    <div class="slide-title">Latent variable models are linear MDPs</div>
+    <div class="eq">\[ T(s'|s,a) = \int p(s'|z)\,p(z|s,a)\,dz = \bigl\langle p(z|s,a),\, p(s'|z)\bigr\rangle_{L_2} \]</div>
+    <div class="eq tight">\[ \phi(s,a) = p(z|s,a),\qquad \mu(s') = p(s'|z) \]</div>
+    <p class="fragment fade-in" data-fragment-index="1"><strong>Evidence lower bound (ELBO)</strong></p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \begin{aligned} \log T(s'|s,a) &= \log\int p(s'|z)\,p(z|s,a)\,dz \\ &= \max_{q\in\Delta(\mathcal{Z})}\;\mathbb{E}_q\bigl[\log p(s'|z)\bigr] - KL\bigl(q(z|s,a,s')\,\|\,p(z|s,a)\bigr) \end{aligned} \]</div>
+    <p class="tiny" style="margin-top:auto">Ren, Xiao et al., ICLR 2023 (LV-Rep)</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 24</span></div>
+</section>
+
+<!-- Diffusion -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Diffusion</div>
+    <div class="rule"></div>
+    <div class="slide-title">Diffusion spectral representation</div>
+    <p>Connect the diffusion model with a spectral decomposition of the MDP:</p>
+    <div class="eq">\[ T(s'|s,a) \propto \exp\bigl(\psi(s,a)^\top\upsilon(s')\bigr) = \bigl\langle \phi_\omega(\psi(s,a)),\, \nu_\omega(\upsilon(s'))\bigr\rangle \]</div>
+    <p class="fragment fade-in"><strong>Score-based representation learning</strong></p>
+    <div class="eq tight fragment fade-in">\[ \min_{\psi,\upsilon}\;\mathbb{E}_\beta\,\mathbb{E}_{s,a,s',\tilde s'}\Bigl[\bigl\|\tilde s' + \beta\,\psi(s,a)^\top\nabla_{\tilde s'}\upsilon(\tilde s',\beta) - \sqrt{1-\beta}\,s'\bigr\|^2\Bigr] \]</div>
+    <p class="tiny" style="margin-top:auto">Shribak et al., NeurIPS 2024 (Diff-SR)</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 25</span></div>
+</section>
+
+<!-- Algorithm -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Algorithm</div>
+    <div class="rule"></div>
+    <div class="slide-title">The algorithm</div>
+    <ol style="margin-left:1.3em">
+      <li><strong>Collect data</strong> &nbsp; \(s\sim d^{\pi_n},\; a\sim U(\mathcal{A}),\; s'\sim T(\cdot|s,a)\); &nbsp; \(\mathcal{D}_n = \mathcal{D}_{n-1}\cup\{s,a,s'\}\)</li>
+      <li><strong>Learn representation</strong> via <span class="chip">NCE</span><span class="chip c2">SVD</span><span class="chip c3">ELBO</span><span class="chip c4">Diffusion</span></li>
+      <li style="color:#dc2626"><strong style="color:#dc2626">(Optional) UCB bonus</strong>
+        <div class="eq tight" style="font-size:0.85em">\[ \hat b_n(s,a) = \alpha_n\sqrt{\hat\phi_n(s,a)^\top\hat\Sigma_n^{-1}\hat\phi_n(s,a)},\qquad \hat\Sigma_n = \textstyle\sum_{(s,a)\in\mathcal{D}_n}\hat\phi_n(s,a)\hat\phi_n(s,a)^\top + \lambda_n I \]</div>
+      </li>
+      <li><strong>Policy evaluation</strong> with Bellman recursion
+        <div class="eq tight" style="font-size:0.85em">\[ Q^\pi(s,a) = r(s,a) + \hat b_n(s,a) + \gamma\,\mathbb{E}_P\bigl[V^\pi(s')\bigr] \]</div>
+      </li>
+      <li><strong>Policy optimization</strong> with the learned \(Q\); repeat.</li>
+    </ol>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 26</span></div>
+</section>
+
+<!-- Empirical MDP table -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — MuJoCo / MBBL</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0">
+      <img src="figs/mdp_table.png" alt="MBBL results" style="max-width:100%; max-height:560px">
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 27</span></div>
+</section>
+
+<!-- Empirical MDP curves: 27 DMC tasks (Gao et al., 2025, Fig. 4) -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Linear MDP · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — 27 DeepMind Control tasks</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; flex:1; min-height:0; align-items:center">
+      <img src="figs/paper_dmc27_top.png" alt="DMC proprioceptive curves, part 1" style="width:100%; max-height:470px; object-fit:contain">
+      <img src="figs/paper_dmc27_bot.png" alt="DMC proprioceptive curves, part 2" style="width:100%; max-height:470px; object-fit:contain">
+    </div>
+    <p class="small" style="margin-top:6px">Same tuned TD3 backbone, fixed hyperparameters:
+      <span class="chip">Speder · linear / spectral contrastive</span><span class="chip c2">LV-Rep · latent variable / ELBO</span><span class="chip c3">Diff-SR · EBM / score matching</span><span class="chip c4">CTRL-SR · EBM / ranking perturbed NCE</span>
+      &nbsp;vs. TD3, SAC, TD7. &nbsp;<strong>Energy-based reps lead</strong>, especially on dog-* and humanoid-*.</p>
+    <p class="tiny">Gao, Sun, Li, Schuurmans, Dai, 2025 (arXiv:2512.15036), Fig. 4 · first panel = average over 27 tasks</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 28</span></div>
+</section>
+
+<!-- Ablation: representation dimension (Fig. 7) -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Ablation</div>
+    <div class="rule"></div>
+    <div class="slide-title">Ablation — representation dimension</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0">
+      <img src="figs/paper_abl_dim.png" alt="Speder vs CTRL-SR across representation dimensions" style="max-width:100%; max-height:400px">
+    </div>
+    <div class="callout"><span class="k">Finding</span>Both improve with larger \(d\), but the <strong>energy-based</strong> CTRL-SR is better at equal capacity and keeps scaling — it implicitly learns an infinite-dim feature map, truncated by random Fourier features chosen through the critic.</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 29</span></div>
+</section>
+
+<!-- Ablation: noise perturbation & critic coupling (Figs. 8, 9) -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">Linear MDP · Ablation</div>
+    <div class="rule"></div>
+    <div class="slide-title">Ablation — noise perturbation &amp; coupling with the critic</div>
+    <div class="two-col" style="flex:1; min-height:0; align-items:start">
+      <div>
+        <h3 style="margin-bottom:6px">Number of noise levels \(M\)</h3>
+        <img src="figs/paper_abl_noise.png" alt="Diff-SR and CTRL-SR with different numbers of noises" style="width:100%">
+        <p class="small" style="margin-top:6px">Robust to the noise magnitude — but CTRL-SR <strong>collapses without noise</strong>: perturbation stabilizes contrastive learning.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:6px">With / without critic loss on \(\phi\)</h3>
+        <img src="figs/paper_abl_critic.png" alt="Speder, Diff-SR, CTRL-SR with or without critic loss" style="width:100%; max-height:430px; object-fit:contain">
+        <p class="small" style="margin-top:6px">Finite-dim truncation can drop Q-relevant directions; using the rep objective as a regularizer on top of the critic loss helps <strong>uniformly</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 30</span></div>
+</section>
+
+<!-- Summary & gaps 2 -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Linear MDP · Summary</div>
+    <div class="rule"></div>
+    <div class="slide-title">Summary and gaps</div>
+    <div class="two-col">
+      <div class="card" style="border-left:4px solid var(--accent-a)">
+        <h4>Linearization enables RL with nonlinear models</h4>
+        <ul class="small">
+          <li>Efficient exploration.</li>
+          <li>Efficient planning.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--accent-c)">
+        <h4>Still not applicable to practical settings</h4>
+        <ul class="small">
+          <li>RL from <strong>observations</strong>, e.g., images / videos / texts.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 31</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4 — POMDP -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">4</div>
+    <div class="sec-title">Linear Representation for POMDPs</div>
+    <div class="sec-blurb">Rich observations, no complete state — and how foundation-model encoders fit the picture.</div>
+  </div>
+</section>
+
+<!-- Rich observations -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">POMDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">Rich observations in the real world</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/rich_obs.png" alt="Videos and text" style="max-width:100%; max-height:400px">
+    </div>
+    <p style="text-align:center" class="muted">…but <strong>no complete state information</strong>.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 33</span></div>
+</section>
+
+<!-- POMDP -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">POMDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">Partially observable MDPs</div>
+    <p>\(\mathcal{P} = \langle\mathcal{S},\mathcal{A},\mathcal{O},r,H,\rho_0,T,O\rangle\)</p>
+    <div style="display:grid; grid-template-columns:1.3fr 0.9fr; gap:28px; align-items:center; margin-top:8px">
+      <div style="text-align:center"><img src="figs/pomdp_graph.png" alt="POMDP graphical model" style="max-width:100%; max-height:230px"></div>
+      <div style="text-align:center"><img src="figs/robot.png" alt="Robot" style="max-width:100%; max-height:230px; border-radius:8px"></div>
+    </div>
+    <div class="fragment fade-in small" style="margin-top:10px">
+      <div class="callout"><span class="k">Hard</span>Computation: PSPACE-complete (Papadimitriou &amp; Tsitsiklis, 1987). &nbsp;Statistics: exponential in the horizon (Jin et al., 2020a).</div>
+      <div class="callout" style="border-left-color:#10b981; background:#ecfdf5"><span class="k" style="color:#047857">But not all</span>Structured POMDPs admit efficient <strong>sample complexity</strong> (Jin et al., 2020a; Golowich et al., 2022; Liu et al., 2022, 2023; Efroni et al., 2022; Guo et al., 2023).</div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 34</span></div>
+</section>
+
+<!-- L-decodable -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">POMDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">\(L\)-decodable POMDPs</div>
+    <div class="boxed" style="font-size:0.95em; line-height:1.5">
+      <strong>Definition</strong> (\(L\)-decodability, Efroni et al., 2022). &nbsp;Define
+      \[ x_t \in \mathcal{X} := (\mathcal{O}\times\mathcal{A})^{L-1}\times\mathcal{O},\qquad x_t = (o_{t-L+1}, a_{t-L+1},\dots,o_t). \]
+      A POMDP is <em>\(L\)-decodable</em> if there exists a decoder \(p:\mathcal{X}\to\Delta(\mathcal{S})\) such that \(p(x_t) = s_t\).
+    </div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; margin-top:14px">
+      <img src="figs/ldec_graph.png" alt="L-decodable window" style="max-width:80%; max-height:280px">
+    </div>
+    <p class="small muted" style="text-align:center">The \(L\)-step window is a sufficient statistic for the state — e.g. frame stacking in visual RL.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 35</span></div>
+</section>
+
+<!-- Linear Q for POMDP: L-step spectral representation (Gao et al., 2025, Sec. 6) -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">POMDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral representation of the \(L\)-step dynamics</div>
+    <p>\(L\)-decodability lets the value live on the window \(x_t\) — an <strong>\(L\)-step Bellman equation</strong>:</p>
+    <div class="eq tight">\[ Q^\pi(x_t,a_t) = \mathbb{E}_{x_{t+1:t+L}\sim\mathbb{P}^\pi(\cdot|x_t,a_t)}\Bigl[\textstyle\sum_{i=0}^{L-1}\gamma^i r_{t+i} + \gamma^L V^\pi(x_{t+L})\Bigr] \]</div>
+    <p class="small muted">A <em>moment-matching policy</em> \(\tilde\pi\), conditioned only on \((x_t,a_t)\), removes the intermediate steps.</p>
+    <p class="fragment fade-in" data-fragment-index="1">Spectrally decompose the <strong>\(L\)-step</strong> transition and reward:</p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \mathbb{P}^{\tilde\pi}_L(x_{t+L}|x_t,a_t) = \bigl\langle \phi(x_t,a_t),\, \mu^{\tilde\pi}(x_{t+L})\bigr\rangle_{\mathcal{H}},\qquad r^{\tilde\pi}_L(x_t,a_t) = \textstyle\sum_{i=0}^{L-1}\gamma^i r_{t+i} = \bigl\langle \phi(x_t,a_t),\, \theta_r^{\tilde\pi}\bigr\rangle_{\mathcal{H}} \]</div>
+    <div class="eq fragment fade-in" data-fragment-index="2">\[ \boxed{\;Q^\pi(x_t,a_t) = \bigl\langle \phi(x_t,a_t),\; \theta_r^{\tilde\pi} + \gamma^L\textstyle\int \mu^{\tilde\pi}(x_{t+L})\,V^\pi(x_{t+L})\,dx_{t+L}\bigr\rangle_{\mathcal{H}}\;} \]</div>
+    <div class="callout fragment fade-in" data-fragment-index="3"><span class="k">Beyond LV</span>\(\phi(x_t,a_t)=p(z|x_t,a_t)\) (μLV-Rep) is just <em>one</em> instance.</div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 36</span></div>
+</section>
+
+<!-- Learning phi(x,a) in POMDPs: all formulations carry over -->
+<section>
+  <div class="slide-pad compact">
+    <div class="eyebrow">POMDP</div>
+    <div class="rule"></div>
+    <div class="slide-title">Learning \(\phi(x_t,a_t)\): every formulation carries over</div>
+    <table class="tax" style="font-size:0.74em">
+      <tr><th style="width:18%">Formulation</th><th style="width:22%">Representation</th><th>Objective on windows \((x_t,a_t)\to o_{t+1:t+L}\)</th></tr>
+      <tr><td>Linear</td><td>\(\phi_{\text{Linear}}(x_t,a_t)\)</td><td>Spectral contrastive: \(-2\,\mathbb{E}\bigl[\phi(x_t,a_t)^\top\nu(o_{t+1:t+L})\bigr] + \mathbb{E}_{p\otimes p}\bigl[(\phi^\top\nu)^2\bigr]\)</td></tr>
+      <tr><td>Latent variable</td><td>\(\phi_{\text{LV}} = p(z|x_t,a_t)\)</td><td>Multi-step ELBO; predicting single frames as a cheaper approximation</td></tr>
+      <tr><td>Energy-based</td><td>\(\phi_{\text{EBM}}\) via random features of \(\exp(\psi^\top\upsilon)\)</td><td>Score matching, or NCE with \(\phi(o_{t-L+1:t},a_t)\) vs. \(\nu(o_{t+1:t+L})\) on \(L\) consecutive frames</td></tr>
+    </table>
+    <p class="fragment fade-in" data-fragment-index="1" style="margin-top:10px">e.g. the latent-variable instance — multi-step ELBO:</p>
+    <div class="eq tight fragment fade-in" data-fragment-index="1" style="font-size:0.86em">\[ \log p(o_{t+1:t+L}|x_t,a_t) = \max_{q\in\Delta(\mathcal{Z})}\;\mathbb{E}_{q}\bigl[\log\mathbb{P}^\pi(o_{t+1:t+L}|z)\bigr] - D_{KL}\bigl(q(z|x_t,a_t,o_{t+1:t+L})\,\|\,p(z|x_t,a_t)\bigr) \]</div>
+    <div class="boxed fragment fade-in" data-fragment-index="2" style="margin-top:10px; font-size:0.92em">The RL algorithm (LSPI / UCB bonus) and its guarantees carry over ⇒ a family of <strong>practical and provable</strong> algorithms for a subclass of POMDPs.</div>
+    <p class="tiny" style="margin-top:auto">Gao, Sun, Li, Schuurmans, Dai, 2025 (arXiv:2512.15036), Sec. 6 · Zhang et al., ICML 2024</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 37</span></div>
+</section>
+
+<!-- Foundation models -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">POMDP · Foundation Models</div>
+    <div class="rule"></div>
+    <div class="slide-title">Foundation models for representation learning</div>
+    <div class="r-stack" style="flex:1">
+      <div class="fragment fade-out" data-fragment-index="1" style="display:flex; align-items:center; justify-content:center; height:100%">
+        <img src="figs/fm_step1.png" alt="history and future windows" style="max-width:100%">
+      </div>
+      <div class="fragment fade-in" data-fragment-index="1" style="display:flex; align-items:center; justify-content:center; height:100%">
+        <img src="figs/fm_full.png" alt="Transformer encoder and MLP decoder" style="max-width:100%; max-height:430px">
+      </div>
+    </div>
+    <p class="small muted" style="text-align:center">Latent-variable instance: \(p(z_{h+1}|x_h,a_h)\) = Transformer over the encoded history &nbsp;·&nbsp; \(p(o_{h+1:h+3}|z_{h+1})\): MLP over the encoded future.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 38</span></div>
+</section>
+
+<!-- DINOv2 -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">POMDP · Foundation Models</div>
+    <div class="rule"></div>
+    <div class="slide-title">Connection to DINOv2</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/dino.png" alt="DINO-based predictor" style="max-width:100%; max-height:480px">
+    </div>
+    <p class="small muted" style="text-align:center">Frozen DINO encoder for past &amp; future features; action-conditioned predictor trained on future-feature loss.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 39</span></div>
+</section>
+
+<!-- POMDP table -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">POMDP · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — partially observable control</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/pomdp_table.png" alt="POMDP results" style="max-width:100%; max-height:520px">
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">POMDP · 40</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5 — Video RL -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">5</div>
+    <div class="sec-title">Video-based RL</div>
+    <div class="sec-blurb">From pixels to manipulation.</div>
+  </div>
+</section>
+
+<!-- Video RL tasks -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Video-based RL</div>
+    <div class="rule"></div>
+    <div class="slide-title">Video-based reinforcement learning</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/mw_tasks.png" alt="Meta-World training tasks" style="max-width:100%; max-height:500px">
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Video RL · 42</span></div>
+</section>
+
+<!-- Video RL bar -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Video-based RL · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — Meta-World success rates</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/mw_bar.png" alt="Meta-World success rates" style="max-width:100%">
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Video RL · 43</span></div>
+</section>
+
+<!-- Video RL curves -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Video-based RL · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — learning curves</div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center">
+      <img src="figs/mw_curves.png" alt="Meta-World curves" style="max-width:100%">
+    </div>
+    <p class="small muted" style="text-align:center">μLV-Rep vs. MWM and DreamerV2 on Meta-World.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Video RL · 44</span></div>
+</section>
+
+<!-- DMC pixel curves -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Video-based RL · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Empirical performance — DMC from pixels</div>
+    <div style="display:grid; grid-template-columns:1.45fr 1fr; gap:24px; flex:1; min-height:0; align-items:center">
+      <img src="figs/paper_pixel8.png" alt="DMC pixel curves" style="width:100%; max-height:480px; object-fit:contain">
+      <div>
+        <img src="figs/paper_runtime.png" alt="Runtime comparison" style="width:100%; max-height:300px; object-fit:contain">
+        <div class="legend" style="text-align:center; margin-top:4px">normalized score vs. training time for 1M frames</div>
+        <ul class="small" style="margin-top:12px">
+          <li>84×84 frames, 3-frame stack; conv encoder → spectral rep.</li>
+          <li><strong>Model-free</strong> Diff-SR / CTRL-SR match or beat model-based TDMPC2 &amp; Dreamer-V3 (best on dog-stand).</li>
+          <li>Far cheaper than model-based: no planning at decision time.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="tiny">Gao et al., 2025 (arXiv:2512.15036), Figs. 5–6</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Video RL · 45</span></div>
+</section>
+
+<section>
+  <div class="section-divider">
+    <div class="sec-num">6</div>
+    <div class="sec-title">Closing</div>
+    <div class="sec-blurb">One structure, three axes balanced. References and code.</div>
+  </div>
+</section>
+
+<!-- Take-away -->
+<section>
+  <div class="slide-pad" style="justify-content:center">
+    <div class="eyebrow">Take-away</div>
+    <div class="rule"></div>
+    <div class="slide-title">If you remember one thing</div>
+    <div class="boxed" style="font-size:1.3em; line-height:1.4; padding:26px 30px; margin:20px 0">
+      A <strong>spectral (linear) representation</strong> of the dynamics makes Q-functions linear — giving deep-net <strong>modeling</strong>, provable <strong>exploration</strong>, and efficient <strong>planning</strong> at once.
+    </div>
+    <div class="three-col" style="margin-top:10px">
+      <div class="card"><h4>MDP</h4><div class="small">NCE / SVD / ELBO / diffusion to learn \(\phi(s,a)\).</div></div>
+      <div class="card"><h4>POMDP</h4><div class="small">\(L\)-decodable windows; \(Q = \langle \phi(x_t,a_t), w\rangle\) for any formulation.</div></div>
+      <div class="card"><h4>Real world</h4><div class="small">Foundation-model encoders, video-based RL.</div></div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Closing · 47</span></div>
+</section>
+
+<!-- References -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">References</div>
+    <div class="rule"></div>
+    <div class="slide-title">References</div>
+    <ul class="small refs">
+      <li>Tongzheng Ren*, Tianjun Zhang*, Csaba Szepesvári, Bo Dai. <a href="https://arxiv.org/abs/2111.11485">A Free Lunch from the Noise: Provable and Practical Exploration for Representation Learning</a>. <strong>UAI</strong> 2022.</li>
+      <li>Tianjun Zhang*, Tongzheng Ren*, Mengjiao Yang, Joseph Gonzalez, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/abs/2207.07150">Making Linear MDPs Practical via Contrastive Representation Learning</a>. <strong>ICML</strong> 2022.</li>
+      <li>Tongzheng Ren*, Tianjun Zhang*, Lisa Lee, Joseph Gonzalez, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/abs/2208.09515">Spectral Decomposition Representation for Reinforcement Learning</a>. <strong>ICLR</strong> 2023.</li>
+      <li>Tongzheng Ren, Chenjun Xiao, Tianjun Zhang, Na Li, Zhaoran Wang, Sujay Sanghavi, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/abs/2212.08765">Latent Variable Representation for Reinforcement Learning</a>. <strong>ICLR</strong> 2023.</li>
+      <li>Tongzheng Ren, Zhaolin Ren, Na Li, Bo Dai. <a href="https://arxiv.org/abs/2304.03907">Stochastic Nonlinear Control via Finite-dimensional Spectral Dynamic Embedding</a>. <strong>CDC</strong> 2023.</li>
+      <li>Hongming Zhang, Tongzheng Ren, Chenjun Xiao, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/abs/2311.12244">Provable Representation with Efficient Planning for Partially Observable Reinforcement Learning</a>. <strong>ICML</strong> 2024.</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 48</span></div>
+</section>
+
+<!-- More recent progress -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">References</div>
+    <div class="rule"></div>
+    <div class="slide-title">More recent progress</div>
+    <ul class="small refs">
+      <li>Dmitry Shribak, Chen-Xiao Gao, Yitong Li, Chenjun Xiao, Bo Dai. <a href="https://arxiv.org/abs/2406.16121">Diffusion Spectral Representation for Reinforcement Learning</a>. <strong>NeurIPS</strong> 2024.</li>
+      <li>Haitong Ma, Zhaolin Ren, Bo Dai, Na Li. <a href="https://arxiv.org/abs/2404.05051">Skill Transfer and Discovery for Sim-to-Real Learning: A Representation-Based Viewpoint</a>. <strong>IROS</strong> 2024.</li>
+      <li>Zhaolin Ren, Runyu Zhang, Bo Dai, Na Li. <a href="https://arxiv.org/abs/2410.17221">Scalable Spectral Representations for Network Multi-Agent Control</a>. <strong>AISTATS</strong> 2025.</li>
+      <li>Yang Hu, Tianyi Chen, Na Li, Kai Wang, Bo Dai. <a href="https://arxiv.org/abs/2410.17538">Primal-Dual Spectral Representation for Off-policy Evaluation</a>. <strong>AISTATS</strong> 2025.</li>
+      <li>Haitong Ma, Bo Dai, Zhaolin Ren, Yebin Wang, Na Li. Offline Imitation Learning upon Sub-optimal Demonstrations by Primal-Dual Representation. <strong>IROS</strong> 2025.</li>
+      <li>Chenxiao Gao, Haotian Sun, Na Li, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/pdf/2512.15036"><strong>Spectral Representation-based Reinforcement Learning</strong></a>. <em>arXiv:2512.15036</em>, 2025.</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 49</span></div>
+</section>
+
+<!-- Code + Thanks -->
+<section>
+  <div class="slide-pad" style="justify-content:center">
+    <div class="spectrum" style="height:6px;width:220px;border-radius:6px;background:linear-gradient(90deg,#7c3aed 0%,#4f46e5 25%,#3b82f6 50%,#06b6d4 75%,#10b981 100%);margin-bottom:32px"></div>
+    <div class="slide-title" style="font-size:2.2em">Thank you. &nbsp;<span class="muted" style="font-weight:400; font-size:0.6em">Questions?</span></div>
+    <div style="margin:20px 0 14px; padding-left:14px; border-left:3px solid var(--accent-a); font-family:'Inter',sans-serif; font-size:0.72em; line-height:1.9">
+      <div><strong>Spectral representation for RL</strong> &nbsp;<a class="lnk" href="https://spectral-rl.github.io/">spectral-rl.github.io</a></div>
+      <div><strong>Spectral representation for control</strong> &nbsp;<a class="lnk" href="https://repr-control-orgnaization.readthedocs.io/en/latest/">repr-control-orgnaization.readthedocs.io</a></div>
+      <div><strong>Sim-to-real</strong> &nbsp;<a class="lnk" href="https://congharvard.github.io/steady-sim-to-real/">congharvard.github.io/steady-sim-to-real</a></div>
+    </div>
+    <hr class="soft"/>
+    <p class="small muted"><strong>Collaborators:</strong> <a class="lnk" href="https://about.gaocx.io/">Chenxiao Gao</a>, Tongzheng Ren, Chenjun Xiao, Tianjun Zhang, Haitong Ma, Zhaolin Ren, Lisa Lee, Sherry Yang, Sujay Sanghavi, Na Li, Csaba Szepesvári, Dale Schuurmans, and many more.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Thanks · 50</span></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- APPENDIX -->
+<!-- ============================================================ -->
+<section>
+  <div class="section-divider">
+    <div class="sec-num">A</div>
+    <div class="sec-title">Appendix</div>
+  </div>
+</section>
+
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Appendix A1</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral view of classical representations</div>
+    <table class="tax" style="font-size:0.85em; max-width:820px">
+      <tr><th>Representation</th><th>Decomposed dynamics</th></tr>
+      <tr><td>Successor feature</td><td>\(\texttt{svd}\bigl((I-\gamma P^\pi)^{-1}\bigr)\)</td></tr>
+      <tr><td>Proto-value function</td><td>\(\texttt{eig}\bigl(\Lambda P^\pi + (P^\pi)^\top\Lambda\bigr)\)</td></tr>
+      <tr><td>Krylov basis</td><td>\(\bigl\{(P^\pi)^i r\bigr\}_{i=1}^{k}\)</td></tr>
+      <tr><td>Spectral state-aggregation</td><td>\(\texttt{svd}(P^\pi)\)</td></tr>
+    </table>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Appendix A1 · 52</span></div>
+</section>
+
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/math/math.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  controls: true,
+  progress: true,
+  slideNumber: 'c/t',
+  width: 1280,
+  height: 800,
+  margin: 0.04,
+  minScale: 0.2,
+  maxScale: 1.8,
+  transition: 'fade',
+  transitionSpeed: 'fast',
+  katex: {
+    version: '0.16.9',
+    macros: {
+      "\\P": "\\mathbb{P}",
+      "\\E": "\\mathbb{E}",
+      "\\R": "\\mathbb{R}",
+      "\\inner": "\\langle #1, #2 \\rangle"
+    }
+  },
+  plugins: [ RevealMath.KaTeX, RevealNotes ]
+});
+</script>
+</body>
+</html>
