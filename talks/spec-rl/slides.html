@@ -190,6 +190,16 @@
 .tax th{ background:var(--bg-muted); font-weight:600; color:var(--fg); }
 .tax td code{ color:var(--accent-a); font-family:ui-monospace,'SF Mono',Menlo,monospace; }
 
+/* MBBL results table */
+.mbbl{ border-collapse:collapse; font-family:'Inter',sans-serif; font-size:13.5px; line-height:1.15; color:var(--fg); font-variant-numeric:tabular-nums; }
+.mbbl th, .mbbl td{ padding:2.5px 9px; text-align:left; white-space:nowrap; }
+.mbbl tr.hd th{ font-weight:600; border-top:1.5px solid var(--fg); border-bottom:1px solid var(--rule); background:var(--bg-muted); }
+.mbbl tr.gstart td{ border-top:1px solid var(--rule); }
+.mbbl td.grp{ font-weight:600; color:var(--fg-muted); vertical-align:middle; border-top:1px solid var(--rule); }
+.mbbl td.m{ color:var(--fg-muted); }
+.mbbl tr.ours td{ background:var(--hi-bg); }
+.mbbl tr.ours td.m{ color:var(--accent-a); }
+.mbbl strong{ font-weight:700; }
 /* Footer */
 .footer{
   position:absolute; left:48px; right:48px; bottom:18px;
@@ -258,7 +268,6 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
     <div class="spectrum"></div>
     <div class="title">Spectral Representation-based Reinforcement Learning</div>
     <div class="subtitle">Balancing modeling, exploration and planning via spectral representations</div>
-    <div style="margin-top:14px"><span class="chip c3" style="font-size:0.7em">Accepted by JMLR</span></div>
     <div class="authors" style="display:flex; align-items:center; gap:18px; font-size:1.2em">
       <span>Bo Dai</span>
       <img src="GTExtended_RGB.png" alt="Georgia Tech" style="height:2.4em; width:auto; opacity:0.95">
@@ -317,6 +326,10 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <div class="card" style="border-left:4px solid #10b981">
         <h4>4 &nbsp;·&nbsp; Beyond states: POMDPs, videos and the real world</h4>
         <div class="small">Linear representation for POMDPs, foundation-model encoders, video-based RL.</div>
+      </div>
+      <div class="card" style="border-left:4px solid #f59e0b">
+        <h4>5 &nbsp;·&nbsp; Real robot: spectral skills</h4>
+        <div class="small">Spectral representation as the command space for humanoid whole-body control.</div>
       </div>
     </div>
   </div>
@@ -526,7 +539,13 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
         <h4 style="color:#b91c1c">Cons</h4>
         <ul class="small">
           <li><strong>Exploration:</strong> hard to capture uncertainty with arbitrary nonlinear functions.</li>
-          <li><strong>Planning:</strong> difficult to control with a nonlinear dynamics model.</li>
+          <li><strong>Planning:</strong> difficult to control with a nonlinear dynamics model.
+            <ul style="margin-top:4px">
+              <li><strong>PPO</strong> on model rollouts: high variance, many imagined samples.</li>
+              <li><strong>CEM</strong> / shooting MPC: sampling cost grows with horizon and action dim.</li>
+              <li><strong>SVG / BPTT</strong> through the model: exploding / vanishing gradients over long horizons.</li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
@@ -606,10 +625,10 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
     <p>Transition and reward factorize with \(\phi(s,a)\):</p>
     <div class="eq tight">\[ T(s'|s,a) = \langle \phi(s,a),\, \mu(s') \rangle,\qquad r(s,a) = \langle \phi(s,a),\, \theta_r\rangle \]</div>
     <p class="fragment fade-in" data-fragment-index="1"><strong>Integration representable:</strong></p>
-    <div class="eq tight fragment fade-in" data-fragment-index="1">\[ \int V^\pi_{h+1}(s_{h+1})\,T(s_{h+1}|s_h,a_h)\,ds_{h+1} = \Bigl\langle \phi(s_h,a_h),\, \int V^\pi_{h+1}(s_{h+1})\,\mu(s_{h+1})\,ds_{h+1}\Bigr\rangle_{\mathcal{H}} \]</div>
+    <div class="eq tight fragment fade-in" data-fragment-index="1" style="padding:4px 14px">\[ \int V^\pi_{h+1}(s_{h+1})\,T(s_{h+1}|s_h,a_h)\,ds_{h+1} = \Bigl\langle \phi(s_h,a_h),\, \int V^\pi_{h+1}(s_{h+1})\,\mu(s_{h+1})\,ds_{h+1}\Bigr\rangle_{\mathcal{H}} \]</div>
     <p class="fragment fade-in" data-fragment-index="2"><strong>Q-function is linearly representable:</strong></p>
-    <div class="eq tight fragment fade-in" data-fragment-index="2" style="font-size:0.88em">\[ Q^\pi_h(s_h,a_h) = r(s,a) + \int T(s_{h+1}|s_h,a_h)V^\pi_{h+1}(s_{h+1})\,ds_{h+1} = \Bigl\langle \phi(s,a),\, \underbrace{\theta_r + \textstyle\int V^\pi_{h+1}\,\mu(s_{h+1})\,ds_{h+1}}_{w}\Bigr\rangle_{\mathcal{H}} \]</div>
-    <div class="callout fragment fade-in" data-fragment-index="3"><span class="k">Key</span>Not a special model, but a <strong>generic structure</strong>.</div>
+    <div class="eq tight fragment fade-in" data-fragment-index="2" style="font-size:0.88em; padding:4px 14px">\[ Q^\pi_h(s_h,a_h) = r(s,a) + \int T(s_{h+1}|s_h,a_h)V^\pi_{h+1}(s_{h+1})\,ds_{h+1} = \Bigl\langle \phi(s,a),\, \underbrace{\theta_r + \textstyle\int V^\pi_{h+1}\,\mu(s_{h+1})\,ds_{h+1}}_{w}\Bigr\rangle_{\mathcal{H}} \]</div>
+    <div class="callout fragment fade-in" data-fragment-index="3" style="margin:8px 0 0"><span class="k">Key</span>Not a special model, but a <strong>generic structure</strong>: the <strong>SVD</strong> of \(T\).</div>
   </div>
   <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 16</span></div>
 </section>
@@ -633,7 +652,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
         <div class="eq tight" style="font-size:0.85em">\[ \pi_{k+1}(a|s) \propto \exp\bigl(\phi(s,a)^\top\theta_{k+1}\bigr) \]</div>
       </div>
     </div>
-    <p class="tiny" style="margin-top:auto">Ren et al., CDC 2023 / IEEE TAC 2025</p>
+    <p class="tiny" style="margin-top:auto">Ren et al., UAI 2022; Ren et al., CDC 2023 / IEEE TAC 2025</p>
   </div>
   <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Control · 17</span></div>
 </section>
@@ -662,7 +681,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <div class="card" style="border-left:4px solid var(--accent-a)">
         <h4>Take-home</h4>
         <ul class="small">
-          <li>Linearization makes nonlinear control potentially solvable.</li>
+          <li>Linearization in lifting space makes nonlinear control potentially solvable.</li>
           <li>Linearization bridges model-free and model-based RL.</li>
         </ul>
       </div>
@@ -800,7 +819,34 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
     <div class="rule"></div>
     <div class="slide-title">Empirical performance — MuJoCo / MBBL</div>
     <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0">
-      <img src="figs/mdp_table.png" alt="MBBL results" style="max-width:100%; max-height:560px">
+      <table class="mbbl">
+        <tr class="hd"><th></th><th></th><th>HalfCheetah</th><th>Reacher</th><th>Humanoid-ET</th><th>Pendulum</th><th>I-Pendulum</th></tr>
+        <tr class="gstart"><td class="grp" rowspan="5">Model-Based RL</td><td class="m">ME-TRPO*</td><td>2283.7 ± 900.4</td><td>−13.4 ± 5.2</td><td>72.9 ± 8.9</td><td><strong>177.3</strong> ± <strong>1.9</strong></td><td>−126.2 ± 86.6</td></tr>
+        <tr><td class="m">PETS-RS*</td><td>966.9 ± 471.6</td><td>−40.1 ± 6.9</td><td>109.6 ± 102.6</td><td>167.9 ± 35.8</td><td>−12.1 ± 25.1</td></tr>
+        <tr><td class="m">PETS-CEM*</td><td>2795.3 ± 879.9</td><td>−12.3 ± 5.2</td><td>110.8 ± 90.1</td><td>167.4 ± 53.0</td><td>−20.5 ± 28.9</td></tr>
+        <tr><td class="m">Best MBBL*</td><td>3639.0 ± 1135.8</td><td><strong>−4.1</strong> ± <strong>0.1</strong></td><td>1377.0 ± 150.4</td><td><strong>177.3</strong> ± <strong>1.9</strong></td><td><strong>0.0</strong> ± <strong>0.0</strong></td></tr>
+        <tr><td class="m">PolyGRAD</td><td>2563.5 ± 204.2</td><td>−20.7 ± 1.9</td><td>1026.6 ± 58.7</td><td>166.3 ± 6.3</td><td>−3.5 ± 4.8</td></tr>
+        <tr class="gstart"><td class="grp" rowspan="3">Model-Free RL</td><td class="m">PPO*</td><td>17.2 ± 84.4</td><td>−17.2 ± 0.9</td><td>451.4 ± 39.1</td><td>163.4 ± 8.0</td><td>−40.8 ± 21.0</td></tr>
+        <tr><td class="m">TRPO*</td><td>−12.0 ± 85.5</td><td>−10.1 ± 0.6</td><td>289.8 ± 5.2</td><td>166.7 ± 7.3</td><td>−27.6 ± 15.8</td></tr>
+        <tr><td class="m">SAC* (3-layer)</td><td>4000.7 ± 202.1</td><td>−6.4 ± 0.5</td><td><strong>1794.4</strong> ± <strong>458.3</strong></td><td>168.2 ± 9.5</td><td>−0.2 ± 0.1</td></tr>
+        <tr class="gstart"><td class="grp" rowspan="4">Representation RL</td><td class="m">DeepSF†</td><td>4180.4 ± 113.8</td><td>−16.8 ± 3.6</td><td>168.6 ± 5.1</td><td>168.6 ± 5.1</td><td>−0.2 ± 0.3</td></tr>
+        <tr><td class="m">SPEDE†</td><td>4210.3 ± 92.6</td><td>−7.2 ± 1.1</td><td>886.9 ± 95.2</td><td>169.5 ± 0.6</td><td>0.0 ± 0.0</td></tr>
+        <tr><td class="m">LV-Rep†</td><td>5557.6 ± 439.5</td><td>−5.8 ± 0.3</td><td>1086 ± 278.2</td><td>167.1 ± 3.1</td><td><strong>0.0</strong> ± <strong>0.0</strong></td></tr>
+        <tr class="ours"><td class="m"><strong>Diff-SR</strong></td><td><strong>7223.53</strong> ± <strong>437.1</strong></td><td>−6.5 ± 2.0</td><td>821.3 ± 118.9</td><td>162.3 ± 3.0</td><td><strong>0.0</strong> ± <strong>0.1</strong></td></tr>
+        <tr class="hd"><th></th><th></th><th>Ant-ET</th><th>Hopper-ET</th><th>S-Humanoid-ET</th><th>CartPole</th><th>Walker-ET</th></tr>
+        <tr class="gstart"><td class="grp" rowspan="5">Model-Based RL</td><td class="m">ME-TRPO*</td><td>42.6 ± 21.1</td><td>1272.5 ± 500.9</td><td>−154.9 ± 534.3</td><td>160.1 ± 69.1</td><td>−1609.3 ± 657.5</td></tr>
+        <tr><td class="m">PETS-RS*</td><td>130.0 ± 148.1</td><td>205.8 ± 36.5</td><td>320.7 ± 182.2</td><td>195.0 ± 28.0</td><td>312.5 ± 493.4</td></tr>
+        <tr><td class="m">PETS-CEM*</td><td>81.6 ± 145.8</td><td>129.3 ± 36.0</td><td>355.1 ± 157.1</td><td>195.5 ± 3.0</td><td>260.2 ± 536.9</td></tr>
+        <tr><td class="m">Best MBBL*</td><td>275.4 ± 309.1</td><td>1272.5 ± 500.9</td><td><strong>1084.3</strong> ± <strong>77.0</strong></td><td><strong>200.0</strong> ± <strong>0.0</strong></td><td>312.5 ± 493.4</td></tr>
+        <tr><td class="m">PolyGRAD</td><td>433.6 ± 158.6</td><td>1151.6 ± 182.3</td><td><strong>1110.1</strong> ± <strong>181.8</strong></td><td>193.4 ± 11.5</td><td>268.4 ± 77.3</td></tr>
+        <tr class="gstart"><td class="grp" rowspan="3">Model-Free RL</td><td class="m">PPO*</td><td>80.1 ± 17.3</td><td>758.0 ± 62.0</td><td>454.3 ± 36.7</td><td>86.5 ± 7.8</td><td>306.1 ± 17.2</td></tr>
+        <tr><td class="m">TRPO*</td><td>116.8 ± 47.3</td><td>237.4 ± 33.5</td><td>281.3 ± 10.9</td><td>47.3 ± 15.7</td><td>229.5 ± 27.1</td></tr>
+        <tr><td class="m">SAC* (3-layer)</td><td>2012.7 ± 571.3</td><td>1815.5 ± 655.1</td><td>834.6 ± 313.1</td><td><strong>199.4</strong> ± <strong>0.4</strong></td><td>2216.4 ± 678.7</td></tr>
+        <tr class="gstart"><td class="grp" rowspan="4">Representation RL</td><td class="m">DeepSF†</td><td>768.1 ± 44.1</td><td>548.9 ± 253.3</td><td>533.8 ± 154.9</td><td>194.5 ± 5.8</td><td>165.6 ± 127.9</td></tr>
+        <tr><td class="m">SPEDE†</td><td>806.2 ± 60.2</td><td>732.2 ± 263.9</td><td>986.4 ± 154.7</td><td>138.2 ± 39.5</td><td>501.6 ± 204.0</td></tr>
+        <tr><td class="m">LV-Rep†</td><td>2511.8 ± 460.0</td><td>2204.8 ± 496.0</td><td>963.1 ± 45.1</td><td><strong>200.7</strong> ± <strong>0.2</strong></td><td>2523.5 ± 333.9</td></tr>
+        <tr class="ours"><td class="m"><strong>Diff-SR</strong></td><td><strong>4788.6</strong> ± <strong>623.1</strong></td><td><strong>2800.5</strong> ± <strong>95.4</strong></td><td><strong>1160.3</strong> ± <strong>150.1</strong></td><td>199.9 ± 1.1</td><td><strong>3722.2</strong> ± <strong>406.1</strong></td></tr>
+      </table>
     </div>
   </div>
   <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Linear MDP · 27</span></div>
@@ -1105,9 +1151,139 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
   <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Video RL · 45</span></div>
 </section>
 
+<!-- ============================================================ -->
+<!-- SECTION 6 — Real robot: spectral skills (Wu*, Gao* et al., arXiv:2609.37677) -->
+<!-- ============================================================ -->
 <section>
   <div class="section-divider">
     <div class="sec-num">6</div>
+    <div class="sec-title">Real robot: spectral skills</div>
+    <div class="sec-blurb">Spectral representation as the command space for humanoid whole-body control on a Unitree G1.</div>
+  </div>
+</section>
+
+<!-- Spectral skills: question + factorized decoder -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Real Robot · Spectral Skills</div>
+    <div class="rule"></div>
+    <div class="slide-title">Spectral skills: a command space for humanoid control</div>
+    <div style="display:grid; grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr); gap:26px; align-items:start">
+      <ul class="small" style="margin-top:0">
+        <li>Planner → <strong>command</strong> → 50 Hz whole-body controller.</li>
+        <li>Explicit trajectories: errors accumulate; latent codes: opaque, not editable.</li>
+        <li>Want: expressive, easy to predict, <strong>compositional</strong>.</li>
+      </ul>
+      <div>
+        <p class="small" style="margin-top:0">0.2 s segment \(B\) → 64-d skill \(z = E_\psi(B)\); <strong>predict</strong> the future \(Y\) from context \(X\):</p>
+        <div class="eq tight" style="font-size:0.8em">\[ P(dY \mid X, z) \propto \exp\bigl(\langle F_\beta(X)^\top (Az+b),\, \mu(Y)\rangle\bigr)\,\nu(dY) \]</div>
+        <p class="small" style="margin:0">Learned by diffusion (Diff-SR); \(z\) enters <strong>only</strong> through \(Az+b\).</p>
+      </div>
+    </div>
+    <div style="flex:1; min-height:0; display:flex; align-items:center; justify-content:center; margin-top:8px">
+      <img src="figs/robot/ss_overview.png" alt="Spectral skills overview" style="max-width:100%; max-height:330px; object-fit:contain">
+    </div>
+    <p class="tiny" style="margin:0">Wu*, Gao*, Yang, Zhao, Dai, Wu, 2026 (arXiv:2609.37677), Fig. 2</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Real Robot · 47</span></div>
+</section>
+
+<!-- Composition is addition -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Real Robot · Composition</div>
+    <div class="rule"></div>
+    <div class="slide-title">Skill enters affinely ⇒ composition is addition</div>
+    <div class="three-col" style="gap:18px">
+      <div class="card"><h4>Exact latent response</h4><div class="small">Denoised estimate \(\hat Y_\xi(z)\) at fixed context \(\xi\):
+        \[ J_\xi = \frac{\partial \hat Y_\xi}{\partial z} = -\frac{\sigma_\tau}{\alpha_\tau} M_\kappa^\top F_\beta^\top A \]
+        independent of \(z\): \(\hat Y_\xi(z+\delta z) - \hat Y_\xi(z) = J_\xi\,\delta z\).</div></div>
+      <div class="card"><h4>Spectral directions</h4><div class="small">Response Gram over sampled contexts
+        \[ C = \frac{1}{N}\sum_{i=1}^N J_{\xi_i}^\top J_{\xi_i} \]
+        eigenvectors \(v_k\): from the trained model alone, no labels.</div></div>
+      <div class="card"><h4>Steering</h4><div class="small">Add directions with time-varying amplitudes
+        \[ z_t^{\text{steer}} = z_t^{\text{base}} + V_K\,\eta(t) \]
+        no new data, no controller retraining.</div></div>
+    </div>
+    <div style="flex:1; min-height:0; display:flex; align-items:center; justify-content:center; margin-top:10px">
+      <img src="figs/robot/ss_steer_sim.png" alt="Steering four base skills" style="max-width:100%; max-height:240px; object-fit:contain">
+    </div>
+    <p class="small muted" style="text-align:center; margin:2px 0">One frozen controller; base skills walk / jog / squat / backward walk, with directions added on top.</p>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Real Robot · 48</span></div>
+</section>
+
+<!-- Tracking: numbers + hardware -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Real Robot · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Motion tracking — simulation and Unitree G1</div>
+    <div style="display:grid; grid-template-columns:1fr 1.25fr; gap:24px; align-items:center">
+      <img src="figs/robot/ss_tracking.png" alt="Tracking error vs SONIC" style="width:100%; max-height:330px; object-fit:contain">
+      <div>
+        <table class="tax" style="font-size:0.62em">
+          <tr><th>4,096-motion set</th><th>SONIC</th><th>Spectral skills</th></tr>
+          <tr><td>MPJPE, global (mm)</td><td>187.9</td><td><strong>70.5</strong></td></tr>
+          <tr><td>MPJPE, local (mm)</td><td>26.7</td><td><strong>20.5</strong></td></tr>
+          <tr><td>Success rate</td><td><strong>98.9%</strong></td><td>98.3%</td></tr>
+        </table>
+        <ul class="small" style="margin-top:10px">
+          <li>~12× fewer simulated frames; the gap is mostly root drift.</li>
+          <li>Same encoder trained by <em>reconstruction</em>: ~2.8× global error.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="three-col" style="gap:14px; margin-top:12px">
+      <div><video data-autoplay muted loop playsinline src="figs/robot/dance.mp4" poster="figs/robot/dance-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Dance</div></div>
+      <div><video data-autoplay muted loop playsinline src="figs/robot/kick.mp4" poster="figs/robot/kick-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Kick</div></div>
+      <div><video data-autoplay muted loop playsinline src="figs/robot/turn180.mp4" poster="figs/robot/turn180-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Turn 180°</div></div>
+    </div>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Real Robot · 49</span></div>
+</section>
+
+<!-- Steering on hardware -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Real Robot · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Steering on the Unitree G1 — new behaviors without new data</div>
+    <div class="two-col" style="gap:20px">
+      <div><video data-autoplay muted loop playsinline src="figs/robot/walk-base.mp4" poster="figs/robot/walk-base-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Base walk (unsteered)</div></div>
+      <div><video data-autoplay muted loop playsinline src="figs/robot/steered-turns.mp4" poster="figs/robot/steered-turns-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">+ right-arm direction + turn direction</div></div>
+    </div>
+    <ul class="small" style="margin-top:14px">
+      <li>One direction ≈ one attribute: arm up (shoulder pitch ≈ 0.9 rad), high steps (swing apex 15 → 36 cm), turn (≈ 130° in 4 s).</li>
+      <li>Effects add; steered skills leave the training-corpus regions, i.e., not retrieval.</li>
+      <li>Not every direction is clean everywhere: 13 / 19 on walk, 7 / 19 on squat.</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Real Robot · 50</span></div>
+</section>
+
+<!-- Chaining + language planning -->
+<section>
+  <div class="slide-pad">
+    <div class="eyebrow">Real Robot · Experiments</div>
+    <div class="rule"></div>
+    <div class="slide-title">Skill chaining and language planning</div>
+    <div class="two-col" style="gap:20px">
+      <div><video data-autoplay muted loop playsinline src="figs/robot/chaining.mp4" poster="figs/robot/chaining-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Chaining: switch the commanded skill, no transition policy</div></div>
+      <div><video data-autoplay muted loop playsinline src="figs/robot/language.mp4" poster="figs/robot/language-poster.jpg" style="width:100%; border-radius:6px"></video><div class="legend" style="text-align:center">Language planner predicts skills; frozen controller executes</div></div>
+    </div>
+    <ul class="small" style="margin-top:14px">
+      <li><strong>Chaining:</strong> smoother than SONIC in 36 / 42 switches, including all 13 within two steps.</li>
+      <li><strong>Planning</strong> (replan every 10 steps): predict skills 91.1% success vs. predict states &amp; re-encode 77.1% vs. explicit-to-explicit ≈ 52%.</li>
+      <li>Replanning every step: explicit states win (94.5% vs. 84.3%) — skills pay off when the planner commits to longer horizons.</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Real Robot · 51</span></div>
+</section>
+
+<section>
+  <div class="section-divider">
+    <div class="sec-num">7</div>
     <div class="sec-title">Closing</div>
     <div class="sec-blurb">One structure, three axes balanced. References and code.</div>
   </div>
@@ -1128,7 +1304,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <div class="card"><h4>Real world</h4><div class="small">Foundation-model encoders, video-based RL.</div></div>
     </div>
   </div>
-  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Closing · 47</span></div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Closing · 53</span></div>
 </section>
 
 <!-- References -->
@@ -1146,7 +1322,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <li>Hongming Zhang, Tongzheng Ren, Chenjun Xiao, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/abs/2311.12244">Provable Representation with Efficient Planning for Partially Observable Reinforcement Learning</a>. <strong>ICML</strong> 2024.</li>
     </ul>
   </div>
-  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 48</span></div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 54</span></div>
 </section>
 
 <!-- More recent progress -->
@@ -1162,9 +1338,10 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <li>Yang Hu, Tianyi Chen, Na Li, Kai Wang, Bo Dai. <a href="https://arxiv.org/abs/2410.17538">Primal-Dual Spectral Representation for Off-policy Evaluation</a>. <strong>AISTATS</strong> 2025.</li>
       <li>Haitong Ma, Bo Dai, Zhaolin Ren, Yebin Wang, Na Li. Offline Imitation Learning upon Sub-optimal Demonstrations by Primal-Dual Representation. <strong>IROS</strong> 2025.</li>
       <li>Chenxiao Gao, Haotian Sun, Na Li, Dale Schuurmans, Bo Dai. <a href="https://arxiv.org/pdf/2512.15036"><strong>Spectral Representation-based Reinforcement Learning</strong></a>. <em>arXiv:2512.15036</em>, 2025.</li>
+      <li>Feiyang Wu*, Chenxiao Gao*, Chen Yang, Ye Zhao, Bo Dai, Anqi Wu. <a href="https://arxiv.org/abs/2609.37677">Learning Expressive and Compositional Motion Representation via Spectral Skills</a>. <em>arXiv:2609.37677</em>, 2026.</li>
     </ul>
   </div>
-  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 49</span></div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">References · 55</span></div>
 </section>
 
 <!-- Code + Thanks -->
@@ -1180,7 +1357,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
     <hr class="soft"/>
     <p class="small muted"><strong>Collaborators:</strong> <a class="lnk" href="https://about.gaocx.io/">Chenxiao Gao</a>, Tongzheng Ren, Chenjun Xiao, Tianjun Zhang, Haitong Ma, Zhaolin Ren, Lisa Lee, Sherry Yang, Sujay Sanghavi, Na Li, Csaba Szepesvári, Dale Schuurmans, and many more.</p>
   </div>
-  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Thanks · 50</span></div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Thanks · 56</span></div>
 </section>
 
 <!-- ============================================================ -->
@@ -1206,7 +1383,7 @@ kbd, .mono{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:0.86em
       <tr><td>Spectral state-aggregation</td><td>\(\texttt{svd}(P^\pi)\)</td></tr>
     </table>
   </div>
-  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Appendix A1 · 52</span></div>
+  <div class="footer"><span class="lhs">Spectral Representation-based RL</span><span class="rhs">Appendix A1 · 58</span></div>
 </section>
 
 
